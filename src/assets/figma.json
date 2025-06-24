@@ -1,0 +1,129 @@
+{
+  "document": {
+    "id": "0:0",
+    "name": "Aeon Fitness Webpage",
+    "type": "DOCUMENT",
+    "children": [
+      {
+        "id": "1:1",
+        "name": "Page 1",
+        "type": "CANVAS",
+        "children": [
+          {
+            "id": "2:1",
+            "name": "Navbar",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 0, "width": 1440, "height": 80 },
+            "children": [
+              {
+                "id": "2:2",
+                "name": "Logo",
+                "type": "TEXT",
+                "characters": "Aeon Fitness",
+                "style": {
+                  "fontSize": 24,
+                  "fontWeight": "BOLD",
+                  "textAlignHorizontal": "LEFT",
+                  "textAlignVertical": "CENTER"
+                },
+                "absoluteBoundingBox": { "x": 20, "y": 25, "width": 200, "height": 30 }
+              },
+              {
+                "id": "2:3",
+                "name": "Nav Links",
+                "type": "TEXT",
+                "characters": "產品  |  聯絡我們",
+                "style": {
+                  "fontSize": 16,
+                  "fontWeight": "REGULAR",
+                  "textAlignHorizontal": "RIGHT",
+                  "textAlignVertical": "CENTER"
+                },
+                "absoluteBoundingBox": { "x": 1200, "y": 25, "width": 200, "height": 30 }
+              }
+            ]
+          },
+          {
+            "id": "3:1",
+            "name": "Swiper Banner",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 100, "width": 1440, "height": 400 },
+            "children": [
+              {
+                "id": "3:2",
+                "name": "Slide 1",
+                "type": "RECTANGLE",
+                "fills": [
+                  { "type": "IMAGE", "scaleMode": "FILL", "imageRef": "image1" }
+                ],
+                "absoluteBoundingBox": { "x": 0, "y": 100, "width": 1440, "height": 400 }
+              }
+            ]
+          },
+          {
+            "id": "4:1",
+            "name": "產品列表",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 520, "width": 1440, "height": 600 },
+            "children": [
+              {
+                "id": "4:2",
+                "name": "產品 A",
+                "type": "FRAME",
+                "absoluteBoundingBox": { "x": 60, "y": 530, "width": 320, "height": 280 },
+                "children": [
+                  {
+                    "id": "4:3",
+                    "name": "圖片",
+                    "type": "RECTANGLE",
+                    "fills": [
+                      { "type": "IMAGE", "scaleMode": "FILL", "imageRef": "prodA" }
+                    ],
+                    "absoluteBoundingBox": { "x": 60, "y": 530, "width": 320, "height": 180 }
+                  },
+                  {
+                    "id": "4:4",
+                    "name": "名稱",
+                    "type": "TEXT",
+                    "characters": "跑步機型號 A",
+                    "style": { "fontSize": 18, "fontWeight": "BOLD" },
+                    "absoluteBoundingBox": { "x": 60, "y": 720, "width": 320, "height": 30 }
+                  },
+                  {
+                    "id": "4:5",
+                    "name": "描述",
+                    "type": "TEXT",
+                    "characters": "高效馬達，穩定訓練體驗。",
+                    "style": { "fontSize": 14 },
+                    "absoluteBoundingBox": { "x": 60, "y": 760, "width": 320, "height": 40 }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "5:1",
+            "name": "Footer",
+            "type": "FRAME",
+            "absoluteBoundingBox": { "x": 0, "y": 1140, "width": 1440, "height": 100 },
+            "children": [
+              {
+                "id": "5:2",
+                "name": "Footer Text",
+                "type": "TEXT",
+                "characters": "© 2025 Aeon Fitness. All rights reserved.",
+                "style": { "fontSize": 14, "textAlignHorizontal": "CENTER" },
+                "absoluteBoundingBox": { "x": 0, "y": 1150, "width": 1440, "height": 40 }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "images": {
+    "image1": "https://picsum.photos/1440/400",
+    "prodA": "https://picsum.photos/320/180?random=1"
+  },
+  "schemaVersion": 0
+}
