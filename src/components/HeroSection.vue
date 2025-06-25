@@ -1,28 +1,57 @@
 <template>
-  <section class="bg-white px-6 py-20 md:px-20">
-    <!-- <div class="max-w-5xl mx-auto text-center">
-      <h1 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-        Move People. Move Products. <br class="hidden md:block" />
-        Move the World Forward.
-      </h1>
-      <p class="mt-6 text-lg text-gray-600">
-        The world's largest companies use Ori to plan and operate their logistics networks.
-      </p>
-      <div class="mt-10 flex justify-center gap-4">
-        <button class="px-6 py-3 bg-black text-white rounded-lg text-sm hover:bg-gray-900 transition">
-          Request a demo
-        </button>
-        <button class="px-6 py-3 border border-gray-300 text-sm rounded-lg hover:bg-gray-100 transition">
-          Learn more
-        </button>
-      </div>
-    </div> -->
+  <section ref="heroRef" class="relative h-[800px] md:h-[1200px] overflow-visible">
+    <!-- Three.js 動畫 Canvas -->
+    <ThreeAnimation
+      :width="width"
+      :height="height"
+      :pinTriggerEl="pinTriggerEl"
+    />
 
-    <ThreeAnimation />
-
+    <!-- 文字與按鈕，蓋在 Canvas 上 -->
+    <div class="relative z-10 max-w-4xl mx-auto text-center pt-32 text-white">
+      <h1 class="text-5xl font-bold mb-6 drop-shadow-lg">Welcome to Hero Section</h1>
+      <button class="px-8 py-4 bg-black bg-opacity-60 rounded hover:bg-opacity-80 transition">
+        Demo Button
+      </button>
+    </div>
   </section>
 </template>
 
 <script setup>
-  import ThreeAnimation from './ThreeAnimation.vue';
+import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue'
+import ThreeAnimation from './ThreeAnimation.vue'
+
+const heroRef = ref(null)
+const width = ref(0)
+const height = ref(0)
+const pinTriggerEl = ref(null)
+
+function updateSize() {
+  if (!heroRef.value) return
+  width.value = heroRef.value.clientWidth
+  height.value = heroRef.value.clientHeight
+}
+
+onMounted(() => {
+  updateSize()
+  window.addEventListener('resize', updateSize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateSize)
+})
+
+watchEffect(() => {
+  if (heroRef.value) {
+    pinTriggerEl.value = heroRef.value
+  }
+})
 </script>
+
+<style scoped>
+section {
+  background: transparent;
+  overflow: visible;
+}
+</style>
+
