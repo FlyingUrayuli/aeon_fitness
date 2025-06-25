@@ -1,6 +1,6 @@
 <template>
   <section class="bg-white px-6 py-20 md:px-20">
-    <div class="max-w-5xl mx-auto text-center">
+    <!-- <div class="max-w-5xl mx-auto text-center">
       <h1 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
         Move People. Move Products. <br class="hidden md:block" />
         Move the World Forward.
@@ -16,6 +16,13 @@
           Learn more
         </button>
       </div>
-    </div>
+    </div> -->
+
+    <ThreeAnimation />
+
   </section>
 </template>
+
+<script setup>
+  import ThreeAnimation from './ThreeAnimation.vue';
+</script>

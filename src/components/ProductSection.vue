@@ -1,5 +1,5 @@
 <template>
-  <section class="bg-white py-16 px-6 md:px-20">
+  <section class="bg-white py-16 px-6 md:px-24">
     <!-- Swiper 輪播區 -->
     <Swiper
       :modules="[ Autoplay, Navigation, Pagination ]"
