@@ -1,4 +1,5 @@
 <template>
+  <!-- canvas 填滿容器，容器高度由父層 section 控制 -->
   <div ref="container" class="absolute inset-0 w-full h-full pointer-events-none"></div>
 </template>
 
@@ -18,8 +19,7 @@ const props = defineProps({
 })
 
 const container = ref(null)
-
-let renderer, scene, camera, animationFrameId
+let renderer, scene, camera, animationFrameId, model
 
 function initThree() {
   if (!container.value) return
@@ -27,13 +27,12 @@ function initThree() {
   const height = container.value.clientHeight
 
   scene = new THREE.Scene()
-
   camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000)
-  camera.position.set(3, 0.5, 2)
+  camera.position.set(0, 0.5, 1.3)
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
   renderer.setSize(width, height)
-  renderer.setClearColor(0x000000, 0) // 透明背景
+  renderer.setClearColor(0x000000, 0)
   container.value.appendChild(renderer.domElement)
 
   // 光源
@@ -42,39 +41,42 @@ function initThree() {
   scene.add(directionalLight)
   scene.add(new THREE.AmbientLight(0x888888))
 
+  // 載入模型
   const loader = new GLTFLoader()
   loader.load('/model/treadmill_00.glb', (gltf) => {
-    const model = gltf.scene
+    model = gltf.scene
     model.scale.set(0.5, 0.5, 0.5)
-    model.position.set(0, 0.3, 0) // 模型偏上居中
-
+    model.position.set(0, 0, 0)
+    model.rotation.y = Math.PI / 2
     scene.add(model)
 
-    const lookTarget = new THREE.Vector3(0, 1, 0)
+    const lookTarget = new THREE.Vector3(0, 0.3, -1.5)
 
-    const tl = gsap.timeline({
+    // 動畫（固定區塊內進行）
+    gsap.timeline({
       scrollTrigger: {
         trigger: props.pinTriggerEl,
         start: 'top top',
-        end: '+=1500',
+        end: '+=2000', // 僅區塊內滾動
         scrub: true,
         pin: true,
-        pinSpacing: true,
+        pinSpacing: false
       }
     })
 
-    tl.to(camera.position, { x: 0, z: 2, duration: 1 })
-    tl.to(model.rotation, { y: Math.PI / 2, duration: 1 }, '<')
-    tl.to(lookTarget, { x: 0, y: 0.3, z: -1.5, duration: 1 })
-    tl.to(camera.position, { z: 1.2, duration: 1 }, '<')
-
-    function animate() {
-      animationFrameId = requestAnimationFrame(animate)
-      camera.lookAt(lookTarget)
-      renderer.render(scene, camera)
-    }
-    animate()
+    animate(lookTarget)
   })
+}
+
+function animate(lookTarget) {
+  animationFrameId = requestAnimationFrame(() => animate(lookTarget))
+
+  if (model) {
+    model.rotation.y += 0.01 // 自轉
+  }
+
+  camera.lookAt(lookTarget)
+  renderer.render(scene, camera)
 }
 
 function resize() {
@@ -100,8 +102,3 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
-div[ref="container"] {
-  pointer-events: none;
-}
-</style>

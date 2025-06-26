@@ -1,6 +1,9 @@
 <template>
   <HeroSection />
   <FeatureSection />
+  <FeatureSection />
+  <FeatureSection />
+  <FeatureSection />
   <CustomerSection />
   <CTASection />
 </template>
