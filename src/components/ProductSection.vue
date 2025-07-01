@@ -24,7 +24,7 @@
         :to="`/product/${product.id}`"
         class="border rounded-lg p-4 shadow hover:shadow-lg transition block"
       >
-        <img :src="product.image" :alt="product.name" />
+        <img :src="product.image[0]" :alt="product.name" class="w-full h-100 object-contain" />
         <div class="mt-4">
           <h3 class="text-xl font-semibold mb-2">{{ product.name }}</h3>
           <p class="text-gray-600">{{ product.description }}</p>
@@ -42,38 +42,6 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
+import { slides, products } from '@/data/product.js'
 
-const slides = [
-  { id: 1, image: 'https://picsum.photos/1920/1080/?random=1', alt: 'Banner 1' },
-  { id: 2, image: 'https://picsum.photos/1920/1080/?random=2', alt: 'Banner 2' },
-  { id: 3, image: 'https://picsum.photos/1920/1080/?random=3', alt: 'Banner 3' },
-]
-
-const products = [
-  {
-    id: 'a',
-    name: '跑步機型號 A',
-    image: 'https://picsum.photos/1920/1080/?random=1',
-    description: '高效馬達，穩定訓練體驗。',
-  },
-  {
-    id: 'b',
-    name: '跑步機型號 B',
-    image: 'https://picsum.photos/1920/1080/?random=2',
-    description: '多段阻力調整，專業健身房首選。',
-  },
-  {
-    id: 'c',
-    name: '跑步機型號 C',
-    image: 'https://picsum.photos/1920/1080/?random=3',
-    description: '現代設計，適合企業健身空間。',
-  },
-  {
-    id: 'd',
-    name: '跑步機型號 D',
-    image: 'https://picsum.photos/1920/1080/?random=4',
-    description: '現代設計，適合企業健身空間。',
-  },
-]
 </script>
-
