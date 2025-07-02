@@ -20,8 +20,11 @@ const props = defineProps({
 })
 
 const container = ref(null)
-let renderer, scene, camera, animationFrameId, model
+let renderer, scene, camera, animationFrameId
+let group // 👉 新增 Group 容器，把跑步機與人物一起包進去
 let resizeObserver
+const lookTarget = new THREE.Vector3(0, 0.3, -1.5) // 相機聚焦點
+let runnerMixer // ⏯️ 控制人物動畫的 mixer
 
 // 初始化 Three.js 場景
 function initThree() {
@@ -49,39 +52,88 @@ function initThree() {
   scene.add(directionalLight)
   scene.add(new THREE.AmbientLight(0x888888))
 
-  // 載入 GLTF 模型
+  // 👉 建立 Group，包住模型與人物
+  group = new THREE.Group()
+  scene.add(group)
+
   const loader = new GLTFLoader()
-  loader.load('/model/treadmill_00.glb', (gltf) => {
-    model = gltf.scene
-    model.scale.set(0.5, 0.5, 0.5)
-    model.position.set(0, 0, 0)
-    model.rotation.y = Math.PI / 2    // 預設轉正面
-    scene.add(model)
 
-    // 相機聚焦點
-    const lookTarget = new THREE.Vector3(0, 0.3, -1.5)
 
-    // 建立 GSAP ScrollTrigger 動畫（讓模型區塊滾動時固定在畫面中）
-    gsap.timeline({
-      scrollTrigger: {
-        trigger: props.pinTriggerEl,
-        start: 'top top',
-        end: '+=2000',    // 可視範圍內滾動 2000px
-        scrub: true,
-        pin: true,
-        pinSpacing: false
-      }
+  // 載入跑步機模型
+  loader.load('/model/treadmill_AZ50.glb', (gltf) => {
+    const treadmillModel = gltf.scene
+    treadmillModel.scale.set(0.5, 0.5, 0.5)
+    treadmillModel.position.set(0, 0, 0)
+    treadmillModel.rotation.y = Math.PI / 2    // 預設轉正面
+    group.add(treadmillModel)
+
+
+    // ⏬ 接著載入人物模型
+    loader.load('/model/runner_02.glb', (runnerGltf) => {
+      const runnerModel = runnerGltf.scene
+      runnerModel.scale.set(0.5, 0.5, 0.5)
+
+      runnerModel.rotation.y = Math.PI / 2
+
+      // ✅ 自動對齊到底部並水平居中
+      alignModel(runnerModel)
+
+      runnerModel.position.x -= 0.5
+      runnerModel.position.y += 0.14
+      runnerModel.position.z -= 0.04
+
+      group.add(runnerModel)
+
+      // ⏯️ 初始化 mixer 並啟動第一段動畫
+      runnerMixer = new THREE.AnimationMixer(runnerModel)
+
+      const firstClip = runnerGltf.animations[0] // 假設有動畫，取第一個
+      const action = runnerMixer.clipAction(firstClip)
+      action.play()
+      action.setEffectiveTimeScale(10)  // 播放速度變成 2 倍速
+
+      // 建立 GSAP ScrollTrigger 動畫（讓模型區塊滾動時固定在畫面中）
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: props.pinTriggerEl,
+          start: 'top top',
+          end: '+=2000',    // 可視範圍內滾動 2000px
+          scrub: true,
+          pin: true,
+          pinSpacing: false
+        }
+      })
+
+      // ✅ 兩個模型都載入完成，啟動動畫循環
+      animate()
     })
-    // 啟動動畫循環
-    animate(lookTarget)
   })
 }
 
+function alignModel(object) {
+  const box = new THREE.Box3().setFromObject(object)
+  const center = new THREE.Vector3()
+  const size = new THREE.Vector3()
+  box.getCenter(center)
+  box.getSize(size)
+
+  // 位移模型，使其底部貼齊 y=0，且在 x/z 軸居中
+  object.position.x += (object.position.x - center.x)
+  object.position.z += (object.position.z - center.z)
+  object.position.y += -box.min.y
+}
+
+const clock = new THREE.Clock() // ⏱️ 必須用 clock 來更新時間差
 // 每幀渲染與自轉動畫
-function animate(lookTarget) {
-  animationFrameId = requestAnimationFrame(() => animate(lookTarget))
-  if (model) {
-    model.rotation.y += 0.01    // 模型持續自轉
+function animate() {
+  animationFrameId = requestAnimationFrame(animate)
+
+  const delta = clock.getDelta() // 取得兩幀之間的時間差
+  if (runnerMixer) runnerMixer.update(delta) // 🔁 播放動畫
+
+  if (group) {
+    // group.rotation.y += 0.1     👉 整個 group 自轉（包含跑步機與人物）
+    group.rotation.y += 0.01   //  👉 整個 group 自轉（包含跑步機與人物）
   }
   // 每幀都更新，確保視角對準模型尾端（或你設定的 focus）
   camera.lookAt(lookTarget)
@@ -96,17 +148,10 @@ function resize() {
 
   // 更新 renderer 尺寸
   renderer.setSize(width, height)
-   // 更新相機參數
+  // 更新相機參數
   camera.aspect = width / height
   camera.updateProjectionMatrix()
   camera.position.set(0, 0.5, 1.3)
-
-  // 重設模型參數
-  if (model) {
-    model.position.set(0, 0, 0)
-    model.scale.set(0.5, 0.5, 0.5)
-    model.rotation.y = Math.PI / 2
-  }
 }
 
 // 初始化時載入場景與監聽 resize
