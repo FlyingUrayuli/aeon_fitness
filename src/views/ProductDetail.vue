@@ -1,22 +1,10 @@
 <template>
-  <div class="flex flex-col md:flex-row gap-10 px-6 py-20 min-h-screen">
+  <div class="flex flex-col md:flex-row gap-6 px-6 py-20 min-h-screen">
     <!-- 左側圖片 -->
     <div class="md:w-1/2">
-      <img
-        :src="currentImage"
-        class="w-full h-auto rounded shadow mb-4 object-contain"
-        :alt="product.name"
-      />
-      <div class="flex gap-2">
-        <img
-          v-for="(img, i) in product.image"
-          :key="i"
-          :src="img"
-          @click="currentImage = img"
-          class="w-20 h-20 rounded border cursor-pointer object-cover hover:opacity-80"
-          :class="{ 'ring-2 ring-blue-500': currentImage === img }"
-        />
-      </div>
+      <ImageSwiper
+        :items="product.image"
+        :id-prefix="id" />
     </div>
 
     <!-- 右側產品資訊 -->
@@ -42,10 +30,12 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { products } from '@/data/product.js'
+import ImageSwiper from '@/components/ImageSwiper.vue'
 
 const route = useRoute()
-const id = route.params.id
-
+// http://localhost:3000/products/id
+const id = route.params.id    // 來自網址參數
+// 從 products 陣列中，找出 id 等於網址參數 id 的那一筆資料回傳
 const product = products.find(p => p.id === id)
 const currentImage = ref(product?.image[0] ?? '')
 </script>
