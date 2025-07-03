@@ -37,5 +37,4 @@ const route = useRoute()
 const id = route.params.id    // 來自網址參數
 // 從 products 陣列中，找出 id 等於網址參數 id 的那一筆資料回傳
 const product = products.find(p => p.id === id)
-const currentImage = ref(product?.image[0] ?? '')
 </script>

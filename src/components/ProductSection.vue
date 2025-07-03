@@ -1,7 +1,7 @@
 <template>
   <section class="bg-white py-16 px-6 md:px-24">
     <!-- Swiper 輪播區 -->
-    <Swiper
+    <!-- <Swiper
       :modules="[ Autoplay, Navigation, Pagination ]"
       :slides-per-view="1"
       :loop="true"
@@ -13,7 +13,11 @@
       <SwiperSlide v-for="slide in slides" :key="slide.id">
         <img :src="slide.image" :alt="slide.alt" class="max-h-80 w-full object-cover rounded-lg my-auto" />
       </SwiperSlide>
-    </Swiper>
+    </Swiper> -->
+    <ImageSwiper
+        :items="slides"
+        :translate-offset="80"
+        :visible-count="7" />
 
     <!-- 產品列表 -->
     <h2 class="text-3xl font-bold text-center mb-10">商用跑步機</h2>
@@ -43,5 +47,6 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 
 import { slides, products } from '@/data/product.js'
+import ImageSwiper from './ImageSwiper.vue'
 
 </script>
