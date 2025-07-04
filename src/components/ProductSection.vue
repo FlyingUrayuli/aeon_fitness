@@ -14,20 +14,17 @@
         <img :src="slide.image" :alt="slide.alt" class="max-h-80 w-full object-cover rounded-lg my-auto" />
       </SwiperSlide>
     </Swiper> -->
-    <ImageSwiper
-        :items="slides"
-        :translate-offset="80"
-        :visible-count="7" />
+    <ImageSwiper :items="slides"
+      :translateOffset="80"
+      containerWidth="w-full"
+      :autoplay="true"
+      :autoplayInterval="1000" />
 
     <!-- 產品列表 -->
     <h2 class="text-3xl font-bold text-center mb-10">商用跑步機</h2>
     <div class="grid md:grid-cols-2 gap-8">
-      <RouterLink
-        v-for="product in products"
-        :key="product.id"
-        :to="`/product/${product.id}`"
-        class="border rounded-lg p-4 shadow hover:shadow-lg transition block"
-      >
+      <RouterLink v-for="product in products" :key="product.id" :to="`/product/${product.id}`"
+        class="border rounded-lg p-4 shadow hover:shadow-lg transition block">
         <img :src="product.image[0]" :alt="product.name" class="w-full h-100 object-contain" />
         <div class="mt-4">
           <h3 class="text-xl font-semibold mb-2">{{ product.name }}</h3>
