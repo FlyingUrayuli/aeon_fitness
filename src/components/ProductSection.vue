@@ -1,19 +1,5 @@
 <template>
   <section class="bg-white py-16 px-6 md:px-24">
-    <!-- Swiper 輪播區 -->
-    <!-- <Swiper
-      :modules="[ Autoplay, Navigation, Pagination ]"
-      :slides-per-view="1"
-      :loop="true"
-      class="mb-10"
-      :autoplay="{ delay: 3000 }"
-      :pagination="true"
-      :navigation="true"
-    >
-      <SwiperSlide v-for="slide in slides" :key="slide.id">
-        <img :src="slide.image" :alt="slide.alt" class="max-h-80 w-full object-cover rounded-lg my-auto" />
-      </SwiperSlide>
-    </Swiper> -->
     <ImageSwiper :items="slides"
       :translateOffset="80"
       containerWidth="w-full"
