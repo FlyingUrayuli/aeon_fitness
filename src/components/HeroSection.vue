@@ -35,52 +35,46 @@ watchEffect(() => {
 })
 </script> -->
 
+<!-- herosection,vue -->
 <template>
   <div>
-    <VideoScroll :totalFeatureSectionsHeight="totalFeatureSectionsCalculatedHeight" />
-
-    <div ref="featureSectionsWrapper" class="relative z-10 bg-transparent">
-      <FeatureSection title="AI 掃描技術" subtitle="重新定義 3D 精度與速度" />
-      <FeatureSection title="毫米級定位" subtitle="追求極致的感知精度" />
-      <FeatureSection title="立即體驗" subtitle="開啟您的全新 3D 掃描旅程" />
-      <FeatureSection title="立即體" subtitle="開啟您的全新 3D 掃描旅程" />
-      <FeatureSection title="立體驗" subtitle="開啟您的全新 3D 掃描旅程" />
-      <FeatureSection title="即體驗" subtitle="開啟您的全新 3D 掃描旅程" />
+    <div v-for="(config, i) in videoConfigs" :key="i" class="relative">
+      <VideoScroll
+        :videoSrc="config.src"
+        :totalFrames="config.totalFrames"
+        :fps="config.fps"
+        :triggerId="`section-${i}`"
+      />
+      <FeatureSection
+        :text="config.text"
+        :id="`section-${i}`"
+      />
     </div>
-
-
-
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import VideoScroll from '../components/VideoScroll.vue';
-import FeatureSection from '../components/FeatureSection.vue';
+import VideoScroll from './VideoScroll.vue'
+import FeatureSection from './FeatureSection.vue'
 
-import { gsap } from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-
-const featureSectionsWrapper = ref(null);
-const totalFeatureSectionsCalculatedHeight = ref(0);
-
-onMounted(() => {
-  nextTick(() => {
-    if (featureSectionsWrapper.value) {
-      totalFeatureSectionsCalculatedHeight.value = featureSectionsWrapper.value.offsetHeight;
-      // console.log('Home.vue: totalFeatureSectionsHeight', totalFeatureSectionsCalculatedHeight.value);
-    } else {
-      console.warn('Home.vue: featureSectionsWrapper not found.');
-    }
-    ScrollTrigger.refresh();
-  });
-});
+const videoConfigs = [
+  {
+    src: '/video/0001-0660_0.mp4',
+    totalFrames: 104,
+    fps: 30,
+    text: '第一段文字',
+  },
+  {
+    src: '/video/0001-0660_104.mp4',
+    totalFrames: 43,
+    fps: 30,
+    text: '第二段文字',
+  },
+  {
+    src: '/video/0001-0660_146.mp4',
+    totalFrames: 75,
+    fps: 30,
+    text: '第二段文字',
+  },
+]
 </script>
-
-<style>
-html, body {
-  overflow-x: hidden;
-}
-</style>

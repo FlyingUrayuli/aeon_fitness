@@ -1,41 +1,73 @@
 <template>
   <section
-    ref="sectionRef"
-    class="h-screen flex flex-col justify-center items-center text-center
-           bg-white/80 backdrop-blur-md text-gray-900 relative z-10">
-    <h2 class="text-4xl font-bold mb-4 opacity-0 translate-y-10">{{ title }}</h2>
-    <p class="text-lg opacity-0 translate-y-10">{{ subtitle }}</p>
+    :id="id"
+    class="h-screen flex items-center justify-center relative bg-transparent"
+  >
+    <div
+      class="opacity-0 transition-opacity duration-500 text-3xl font-bold text-black"
+      :class="{ 'opacity-100': isVisible }"
+    >
+      {{ text }}
+    </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { gsap } from 'gsap'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
-
 gsap.registerPlugin(ScrollTrigger)
 
 const props = defineProps({
-  title: String,
-  subtitle: String
+  text: String,
+  id: String,
 })
 
-const sectionRef = ref(null)
+const isVisible = ref(false)
+let currentTextScrollTrigger = null
 
 onMounted(() => {
-  const el = sectionRef.value
-  const h2 = el.querySelector('h2')
-  const p = el.querySelector('p')
+  watch(() => props.id, async (newId) => {
+    await nextTick();
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: el,
-      start: 'top 80%',
-      toggleActions: 'play none none reverse',
+    const triggerEl = document.getElementById(newId)
+    if (!triggerEl) {
+      console.warn(`[FeatureSection] No trigger element found for ID: ${newId}.`);
+      if (currentTextScrollTrigger) {
+        currentTextScrollTrigger.kill();
+        currentTextScrollTrigger = null;
+      }
+      return;
     }
-  })
 
-  tl.to(h2, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' })
-    .to(p, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-})
+    if (currentTextScrollTrigger) {
+      currentTextScrollTrigger.kill();
+      currentTextScrollTrigger = null;
+    }
+
+    console.log(`[FeatureSection] Setting ScrollTrigger for text: "${props.text}" with ID: ${newId}`);
+
+    currentTextScrollTrigger = ScrollTrigger.create({
+      trigger: triggerEl,
+      start: 'top bottom', // 將這裡從 'center center' 改為 'top bottom'
+      end: 'bottom center',
+      toggleActions: 'play reverse play reverse',
+      onEnter: () => {
+        isVisible.value = true;
+        console.log(`[FeatureSection] Text "${props.text}" entering.`);
+      },
+      onLeaveBack: () => {
+        isVisible.value = false;
+        console.log(`[FeatureSection] Text "${props.text}" leaving back.`);
+      },
+    });
+  }, { immediate: true });
+});
+
+onUnmounted(() => {
+  if (currentTextScrollTrigger) {
+    currentTextScrollTrigger.kill();
+    console.log(`[FeatureSection] Cleaned up text ScrollTrigger for: "${props.text}"`);
+  }
+});
 </script>
