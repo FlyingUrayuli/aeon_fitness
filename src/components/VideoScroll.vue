@@ -29,8 +29,8 @@ const props = defineProps({
 
 const videoEl = ref(null);
 const videoContainerEl = ref(null);
-const videoSrc = '/video/home_video.mp4';
-const totalFrames = 250; // 影片總幀數
+const videoSrc = '/video/home_video-v3.mp4';
+const totalFrames = 700; // 影片總幀數
 const fps = 30;         // 影片幀率
 // const duration = totalFrames / fps; // 影片總時長 (秒) - 在這個方案中不再直接用於計算滾動距離
 
@@ -73,7 +73,7 @@ const initScrollTriggers = () => {
       start: 'top top', // 從頁面頂部開始
       end: `+=${videoPlaybackEndScroll}`, // 影片播放結束的滾動距離
       scrub: true, // 將動畫進度綁定到滾動進度
-      // markers: { startColor: "green", endColor: "purple", indent: 50 }, // 調試標記
+      //markers: { startColor: "green", endColor: "purple", indent: 50 }, // 調試標記
       onUpdate: () => {
         const time = scroll.frame / fps;
         if (video.currentTime !== time) {
