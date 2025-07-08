@@ -58,23 +58,48 @@ import VideoScroll from './VideoScroll.vue'
 import FeatureSection from './FeatureSection.vue'
 
 const videoConfigs = [
+  // total frame: 700
   {
-    src: '/video/0001-0660_0.mp4',
-    totalFrames: 104,
+    src: '/video/0.mp4',
+    totalFrames: 139,
     fps: 30,
-    text: '第一段文字',
+    text: 'Section1',
   },
   {
-    src: '/video/0001-0660_104.mp4',
-    totalFrames: 43,
+    src: '/video/139.mp4',
+    totalFrames: 112,
     fps: 30,
-    text: '第二段文字',
+    text: 'Section2',
   },
   {
-    src: '/video/0001-0660_146.mp4',
-    totalFrames: 75,
+    src: '/video/250.mp4',
+    totalFrames: 50,
     fps: 30,
-    text: '第二段文字',
+    text: 'Section3',
+  },
+  {
+    src: '/video/299.mp4',
+    totalFrames: 153,
+    fps: 30,
+    text: 'Section4',
+  },
+  {
+    src: '/video/451.mp4',
+    totalFrames: 86,
+    fps: 30,
+    text: 'Section5',
+  },
+  {
+    src: '/video/536.mp4',
+    totalFrames: 63,
+    fps: 30,
+    text: 'Section6',
+  },
+  {
+    src: '/video/598.mp4',
+    totalFrames: 103,
+    fps: 30,
+    text: 'Section7',
   },
 ]
 </script>
