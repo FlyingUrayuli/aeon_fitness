@@ -35,15 +35,30 @@ watchEffect(() => {
 })
 </script> -->
 
-<!-- herosection,vue -->
+<!-- herosection.vue -->
 <template>
   <div>
-    <div v-for="(config, i) in videoConfigs" :key="i" class="relative">
+    <div
+      v-for="(config, i) in videoConfigs"
+      :key="i"
+      :id="`section-container-${i}`"
+      class="relative min-h-screen"
+    >
+      <div v-if="i === 0" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white z-0 overflow-hidden">
+        <video
+          src="/video/循環.mp4" autoplay
+          loop
+          muted
+          playsinline
+          class="w-full h-full object-cover"
+        ></video>
+        </div>
       <VideoScroll
         :videoSrc="config.src"
         :totalFrames="config.totalFrames"
         :fps="config.fps"
-        :triggerId="`section-${i}`"
+        :triggerId="`section-container-${i}`"
+        :isFirstVideo="i === 0"
       />
       <FeatureSection
         :text="config.text"
@@ -58,7 +73,7 @@ import VideoScroll from './VideoScroll.vue'
 import FeatureSection from './FeatureSection.vue'
 
 const videoConfigs = [
-  // total frame: 700
+  // ... (您的影片配置保持不變)
   {
     src: '/video/0.mp4',
     totalFrames: 139,

@@ -1,7 +1,8 @@
+<!-- featuresection.vue -->
 <template>
   <section
     :id="id"
-    class="h-screen flex items-center justify-center relative bg-transparent"
+    class="h-screen flex items-center justify-center relative bg-transparent z-1"
   >
     <div
       class="opacity-0 transition-opacity duration-500 text-3xl font-bold text-black"
