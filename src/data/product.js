@@ -11,18 +11,46 @@ export const products = [
   {
     id: 'AZ40',
     name: 'AEON AZ40 跑步機',
+    slogan: '小巧精緻，居家首選',
     image: [
       '/AEON-跑步機/AZ40/AZ40-01.png',
       '/AEON-跑步機/AZ40/AZ40-02.png',
       '/AEON-跑步機/AZ40/AZ40-03.png',
       '/AEON-跑步機/AZ40/AZ40-04.png',
     ],
-    modelPath: '/model/treadmill_00.glb',
+    modelPath: '/model/treadmill_AZ40.glb',
     features: [
       '延續 AZ50 的專利 Soft Deck + 空氣減震系統。',
       '積最小、重量最輕，適合空間較小的居家使用者。',
       '馬力與速度範圍較小，適合日常健走或慢跑訓練。'
     ],
+    shockAbsorption: {
+      title: '專利 Soft Deck 避震技術',
+      description: '採用 AEON 專利 Soft Deck 柔性甲板技術，結合空氣減震系統，有效減少運動時對膝蓋和關節的衝擊，讓您的每一步都更加舒適安全。',
+      features: [
+        '16mm 專利柔性甲板設計',
+        'Air Shox 空氣避震系統',
+        '有效減少地面衝擊力達 40%'
+      ]
+    },
+    controlPanel: {
+      title: '直觀操作面板',
+      description: '高質感 LED 控制面板搭配感應式按鍵，操作簡單直覺，即使是初學者也能輕鬆上手。',
+      features: [
+        '感應式按鍵設計',
+        '清晰 LED 顯示',
+        '一鍵快速調整速度和坡度'
+      ]
+    },
+    powerAndIncline: {
+      title: '穩定動力表現',
+      description: 'DC 2.5 馬力馬達提供穩定可靠的動力輸出，15 段坡度調整讓您的訓練更加多樣化。',
+      features: [
+        'DC 2.5 馬力峰值輸出',
+        '速度範圍：0.8-16 km/h',
+        '15 段電動坡度調整'
+      ]
+    },
     specs: {
       '尺寸（組裝）': '1820 x 740 x 1375 mm',
       '馬達（峰值）': 'DC 2.5 馬力',
@@ -43,6 +71,7 @@ export const products = [
   {
     id: 'AZ50',
     name: 'AEON AZ50 跑步機',
+    slogan: '性能均衡，居家運動首選',
     image: [
       '/AEON-跑步機/AZ50/AZ50-01.png',
       '/AEON-跑步機/AZ50/AZ50-02.png',
@@ -56,6 +85,36 @@ export const products = [
       '配備手部脈搏感應器，提供基本心率監控。',
       '性能均衡、體積適中，適合一般居家用戶。'
     ],
+    shockAbsorption: {
+      title: '專利 Soft Deck 避震技術',
+      description: '採用 AEON 專利 Soft Deck 柔性甲板技術，結合 Air Shox 空氣避震系統，為您的膝蓋和關節提供最佳保護。',
+      features: [
+        '18mm 專利柔性甲板設計',
+        'Air Shox 空氣避震系統',
+        '手部脈搏感應器',
+        '有效減少運動傷害風險'
+      ]
+    },
+    controlPanel: {
+      title: '智能控制面板',
+      description: '高質感 LED 控制面板搭配感應式按鍵，提供完整的運動數據監控和多樣化的訓練程式。',
+      features: [
+        '感應式按鍵操作',
+        '心率監控功能',
+        '12 種預設訓練程式',
+        'HRC 心率控制模式'
+      ]
+    },
+    powerAndIncline: {
+      title: '強勁動力系統',
+      description: 'DC 3.0 馬力馬達提供強勁穩定的動力，18 km/h 最高速度滿足各種訓練需求。',
+      features: [
+        'DC 3.0 馬力峰值輸出',
+        '速度範圍：0.8-18 km/h',
+        '15 段電動坡度調整',
+        '適合步行到快跑訓練'
+      ]
+    },
     specs: {
       '尺寸（組裝）': '1820 x 820 x 1425 mm',
       '馬達（峰值）': 'DC 3.0 馬力',
@@ -76,19 +135,50 @@ export const products = [
   {
     id: 'AZ60',
     name: 'AEON AZ60 跑步機',
+    slogan: '強力性能，專業訓練',
     image: [
       '/AEON-跑步機/AZ60/AZ60-01.png',
       '/AEON-跑步機/AZ60/AZ60-02.png',
       '/AEON-跑步機/AZ60/AZ60-03.png',
       '/AEON-跑步機/AZ60/AZ60-04.png',
     ],
-    modelPath: '/model/treadmill_00.glb',
+    modelPath: '/model/treadmill_AZ60.glb',
     features: [
       'PU 材質扶手，配備手部脈搏感應器，運動中可即時量測心跳。',
       '加大腳踏板，具防滑條設計，提升安全性。',
       '超大置杯架，便利放置水壺或飲品。',
       '馬力強大（4.0 HP），適合長時間、高強度訓練。'
     ],
+    shockAbsorption: {
+      title: '專業級避震保護',
+      description: '18mm 高等級 MDF 跑步甲板提供專業級的避震效果，即使進行高強度訓練也能有效保護您的關節。',
+      features: [
+        '18mm 高等級 MDF 跑步甲板',
+        '專業級避震系統',
+        '加大腳踏板防滑設計',
+        '降低運動傷害風險'
+      ]
+    },
+    controlPanel: {
+      title: '專業控制系統',
+      description: '高質感 LED 控制面板搭配 PU 材質扶手和脈搏感應器，提供專業級的訓練監控體驗。',
+      features: [
+        'PU 材質扶手設計',
+        '即時心率監控',
+        '感應式按鍵操作',
+        '豐富訓練程式選擇'
+      ]
+    },
+    powerAndIncline: {
+      title: '強大動力輸出',
+      description: 'DC 4.0 馬力強大馬達，20 km/h 最高速度，滿足專業訓練和高強度運動需求。',
+      features: [
+        'DC 4.0 馬力峰值輸出',
+        '速度範圍：0.8-20 km/h',
+        '15 段電動坡度調整',
+        '適合高強度專業訓練'
+      ]
+    },
     specs: {
       '尺寸（組裝）': '1880 x 860 x 1435 mm',
       '馬達（峰值）': 'DC 4.0 馬力',
@@ -109,15 +199,46 @@ export const products = [
   {
     id: 'GT500',
     name: 'AEON GT-500 跑步機（中階/入門商用）',
+    slogan: '商用品質，專業選擇',
     image: [
       '/AEON-跑步機/GT500/GT500-02.png',
     ],
-    modelPath: '/model/treadmill_00.glb',
+    modelPath: '/model/treadmill_GT500.glb',
     features: [
       '為 GT 系列中較輕巧機型，提供 AC 3.0 或 DC 4.0 馬達版本。',
       '無矽油設計 + 預潤滑系統，潤滑壽命約 3,000~4,000 小時。',
       '配備 LED 控制台（E5 或 E6）與豐富基本程式。',
     ],
+    shockAbsorption: {
+      title: '商用級避震系統',
+      description: '18mm 高等級 MDF 跑步甲板搭配預潤滑系統，提供商用級的穩定性和耐用性。',
+      features: [
+        '18mm 高等級 MDF 跑步甲板',
+        '預潤滑系統設計',
+        '無矽油維護',
+        '商用級耐用性'
+      ]
+    },
+    controlPanel: {
+      title: '專業控制系統',
+      description: '提供 E5 或 E6 兩種 LED 控制台選擇，滿足不同使用需求，操作簡單專業。',
+      features: [
+        'E5/E6 LED 控制台',
+        '豐富訓練程式',
+        '自訂程式功能',
+        '專業數據顯示'
+      ]
+    },
+    powerAndIncline: {
+      title: '雙馬達選擇',
+      description: '提供 AC 3.0 HP 或 DC 4.0 HP 兩種馬達選擇，12% 坡度調整，滿足商用需求。',
+      features: [
+        'AC 3.0 HP 或 DC 4.0 HP 可選',
+        '速度範圍：0.4-20 km/h',
+        '12% 電動坡度調整',
+        '商用級穩定性'
+      ]
+    },
     specs: {
       '尺寸（組裝）': '2080 x 1005 x 1650 mm',
       '馬達（峰值）': 'AC 3.0 HP 或 DC 4.0 HP',
@@ -139,17 +260,48 @@ export const products = [
   {
     id: 'GT820',
     name: 'AEON GT-820 跑步機（中高階）',
+    slogan: '進階性能，觸控體驗',
     image: [
       '/AEON-跑步機/GT820/GT820-01.png',
       '/AEON-跑步機/GT820/GT820-02.png',
     ],
-    modelPath: '/model/treadmill_00.glb',
+    modelPath: '/model/treadmill_GT820.glb',
     features: [
       '同樣具備無矽油設計、潤滑壽命 3,000~4,000 小時。',
       '馬達可選 AC 5.0 或 AC 4.0 馬力版本。',
       '搭配 21.5 吋觸控螢幕或 E6 控制台，顯示功能進階。',
       '體積與 GT-900 相近但重量略輕，功能適中。'
     ],
+    shockAbsorption: {
+      title: '高階避震技術',
+      description: '18mm 高等級中密度纖維板搭配 Siegling 預潤滑高端跑帶，提供卓越的避震效果。',
+      features: [
+        '18mm 高等級中密度纖維板',
+        'Siegling 預潤滑高端跑帶',
+        '無矽油維護系統',
+        '潤滑壽命 3,000-4,000 小時'
+      ]
+    },
+    controlPanel: {
+      title: '智能觸控體驗',
+      description: '21.5 吋觸控螢幕或 E6 控制台雙重選擇，提供直觀的操作體驗和豐富的訓練內容。',
+      features: [
+        '21.5 吋觸控螢幕可選',
+        'E6 LED 控制台',
+        '豐富訓練程式',
+        '直觀操作介面'
+      ]
+    },
+    powerAndIncline: {
+      title: '高性能動力',
+      description: 'AC 5.0 HP 或 AC 4.0 HP 馬達選擇，最高 22 km/h 速度，15% 坡度調整。',
+      features: [
+        'AC 5.0 HP 或 AC 4.0 HP 可選',
+        '速度範圍：0.4-22 km/h',
+        '15% 電動坡度調整',
+        '高性能穩定輸出'
+      ]
+    },
     specs: {
       '尺寸（組裝）': '2050 x 992 x 1775 mm',
       '馬達（峰值）': 'AC 5.0 HP 或 AC 4.0 HP',
@@ -171,18 +323,49 @@ export const products = [
   {
     id: 'GT900',
     name: 'AEON GT-900 跑步機（高階專業型）',
+    slogan: '頂級性能，專業極致',
     image: [
       '/AEON-跑步機/GT900/GT900-01.png',
       '/AEON-跑步機/GT900/GT900-02.png',
       '/AEON-跑步機/GT900/GT900-03.png',
     ],
-    modelPath: '/model/treadmill_00.glb',
+    modelPath: '/model/treadmill_GT900.glb',
     features: [
       '無矽油設計：不需要使用傳統矽油潤滑，維護更方便。',
       '潤滑壽命高達 12,000 小時，極為耐用，適合長時間高頻率使用。',
       '強力馬達最低可達 0.4 km/h，適合復健與慢走訓練。',
       '支援大型觸控螢幕（T21.5）與進階 LED 控制台（E7）。'
     ],
+    shockAbsorption: {
+      title: '頂級避震系統',
+      description: '1 吋雙面預潤滑跑板搭配 Siegling 高端跑帶，提供業界最高水準的避震保護。',
+      features: [
+        '1 吋雙面預潤滑跑板',
+        'Siegling 預潤滑高端跑帶',
+        '無矽油維護系統',
+        '潤滑壽命 12,000 小時'
+      ]
+    },
+    controlPanel: {
+      title: '頂級控制系統',
+      description: '21.5 吋觸控螢幕或 E7 進階控制台，提供最豐富的訓練程式和最直觀的操作體驗。',
+      features: [
+        '21.5 吋觸控螢幕',
+        'E7 進階 LED 控制台',
+        '視覺跑步體驗',
+        '豐富訓練程式庫'
+      ]
+    },
+    powerAndIncline: {
+      title: '頂級動力系統',
+      description: 'AC 5.0 馬力強大馬達，0.4 km/h 超低速啟動，18% 最大坡度，滿足所有訓練需求。',
+      features: [
+        'AC 5.0 馬力頂級輸出',
+        '速度範圍：0.4-22 km/h',
+        '18% 最大坡度調整',
+        '適合復健到專業訓練'
+      ]
+    },
     specs: {
       '尺寸（組裝）': '2091 x 992 x 1789 mm',
       '馬達（峰值）': 'AC 5.0 馬力',
