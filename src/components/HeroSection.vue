@@ -38,7 +38,7 @@ watchEffect(() => {
 <!-- src/components/HeroSection.vue -->
 <template>
   <div>
-    <section ref="sectionRef" class="relative h-[200vh]">
+    <section ref="sectionRef" class="relative h-screen">
       <!-- 無限循環影片 -->
       <video
         v-if="!playTriggered"

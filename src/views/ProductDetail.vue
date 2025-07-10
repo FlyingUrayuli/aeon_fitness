@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-black text-white">
+  <div class="min-h-screen bg-tranparent text-white">
     <div class="container mx-auto px-4 py-8">
       <!-- 根據路由參數找到對應產品 -->
       <div v-if="currentProduct" class="max-w-7xl mx-auto">
