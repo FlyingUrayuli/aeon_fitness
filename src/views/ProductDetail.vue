@@ -73,7 +73,7 @@ import { products } from '../data/product.js'
 import ProductDetailSection from '../components/ProductDetailSection.vue'
 
 const route = useRoute()
-const router = useRouter()
+// const router = useRouter()
 const productList = ref(products)
 
 const currentProduct = computed(() => {

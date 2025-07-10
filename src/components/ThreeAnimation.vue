@@ -36,7 +36,7 @@ const initThree = () => {
     0.1,
     1000
   )
-  camera.value.position.set(0, 1, 3)
+  camera.value.position.set(0, 0.8, 1.8)
   camera.value.lookAt(0, 0, 0)
 
   renderer.value = new THREE.WebGLRenderer({ antialias: true })
@@ -47,16 +47,16 @@ const initThree = () => {
   renderer.value.shadowMap.enabled = true
   renderer.value.shadowMap.type = THREE.PCFSoftShadowMap
   threeContainer.value.appendChild(renderer.value.domElement)
-
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.6)
+  // 環境光強度（AmbientLight）
+  const ambientLight = new THREE.AmbientLight((0xffffff, 2)) //白光
   scene.value.add(ambientLight)
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
+  // 平行光強度（DirectionalLight）
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
   directionalLight.position.set(5, 5, 5)
   directionalLight.castShadow = true
   scene.value.add(directionalLight)
-
-  const pointLight = new THREE.PointLight(0xffffff, 0.5)
+  // 點光源強度（PointLight）
+  const pointLight = new THREE.PointLight(0xffffff, 1)
   pointLight.position.set(-5, 5, 0)
   scene.value.add(pointLight)
 
