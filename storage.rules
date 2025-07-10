@@ -1,0 +1,15 @@
+rules_version = '2';
+
+    // 只開放 video 資料夾內的所有圖可以被讀取
+    // 其他資料禁止一切存取
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /video/{allPaths=**} {
+      allow read: if true;
+    }
+
+    match /{allOtherPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
