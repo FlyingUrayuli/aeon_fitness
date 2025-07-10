@@ -75,51 +75,45 @@ const loopVideoSrc = '/video/循環.mp4' // 請改成你影片的正確路徑
 // const base = 'https://treadmill-animation-cdn.web.app'
 
 const sections = [
-  // {
-  //   title: '第一段內容',
-  //   folder: `${base}/video/frame-`,
-  //   frameCount: 150,
-  //   startFrame: 0,
-  // },
   {
     title: '第一段內容',
-    folder: /video/frame-1,
+    folder: '/video/frame-1',
     frameCount: 150,
     startFrame: 1,
   },
   {
     title: '第二段內容',
-    folder: /video/frame-2,
+    folder: '/video/frame-2',
     frameCount: 150,
     startFrame: 151,
   },
   {
     title: '第段內容',
-    folder: /video/frame-3,
+    folder: '/video/frame-3',
     frameCount: 150,
     startFrame: 301,
   },
   {
     title: '第二段容',
-    folder: /video/frame-4,
+    folder: '/video/frame-4',
     frameCount: 150,
     startFrame: 451,
   },
   {
     title: '第二段內',
-    folder: /video/frame-5,
+    folder: '/video/frame-5',
     frameCount: 150,
     startFrame: 601,
   },
   {
     title: '二段內容',
-    folder: /video/frame-6,
+    folder: '/video/frame-6',
     frameCount: 150,
     startFrame: 751,
   },
   {
     title: '段內容',
-    folder: /video/frame-7,
+    folder: '/video/frame-7',
     frameCount: 150,
     startFrame: 901,
   },
