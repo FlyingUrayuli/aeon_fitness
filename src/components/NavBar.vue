@@ -3,7 +3,7 @@
 
     <!-- <div class="text-xl font-bold">LOGO</div> -->
     <RouterLink to="/">
-      <img src="/favicon.ico" alt="Logo" />
+      <img src="/logo.svg" alt="Logo" />
     </RouterLink>
     <div class="hidden md:flex gap-6" :class="{ 'opacity-0': scrolled }">
       <button class="text-gray-700 hover:text-black">

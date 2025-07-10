@@ -35,86 +35,93 @@ watchEffect(() => {
 })
 </script> -->
 
-<!-- herosection.vue -->
+<!-- src/components/HeroSection.vue -->
 <template>
   <div>
-    <div
-      v-for="(config, i) in videoConfigs"
-      :key="i"
-      :id="`section-container-${i}`"
-      class="relative min-h-screen"
-    >
-      <div v-if="i === 0" class="absolute inset-0 flex items-center justify-center bg-gray-900 text-white z-0 overflow-hidden">
-        <video
-          src="/video/循環.mp4" autoplay
-          loop
-          muted
-          playsinline
-          class="w-full h-full object-cover"
-        ></video>
-        </div>
-      <VideoScroll
-        :videoSrc="config.src"
-        :totalFrames="config.totalFrames"
-        :fps="config.fps"
-        :triggerId="`section-container-${i}`"
-        :isFirstVideo="i === 0"
-      />
-      <FeatureSection
-        :text="config.text"
-        :id="`section-${i}`"
-      />
+    <section ref="sectionRef" class="relative h-[200vh]">
+      <!-- 無限循環影片 -->
+      <video
+        v-if="!playTriggered"
+        ref="loopVideoRef"
+        class="fixed top-0 left-0 w-full h-screen object-cover z-10"
+        autoplay
+        muted
+        loop
+        playsinline
+      >
+        <source :src="loopVideoSrc" type="video/mp4" />
+      </video>
+    </section>
+
+    <!-- 單一 canvas 用來 render 所有 frame -->
+    <VideoScroll :sections="sections" />
+
+    <!-- 對應每段影片的文字說明 -->
+    <div v-for="(section, index) in sections" :key="index">
+      <FeatureSection :title="section.title" :index="index" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import VideoScroll from './VideoScroll.vue'
 import FeatureSection from './FeatureSection.vue'
 
-const videoConfigs = [
-  // ... (您的影片配置保持不變)
+const playTriggered = ref(false)
+const loopVideoRef = ref(null)
+const loopVideoSrc = '/video/循環.mp4' // 請改成你影片的正確路徑
+
+// const base = 'https://treadmill-animation-cdn.web.app'
+
+const sections = [
+  // {
+  //   title: '第一段內容',
+  //   folder: `${base}/video/frame-`,
+  //   frameCount: 150,
+  //   startFrame: 0,
+  // },
   {
-    src: '/video/0.mp4',
-    totalFrames: 139,
-    fps: 30,
-    text: 'Section1',
+    title: '第一段內容',
+    folder: /video/frame-1,
+    frameCount: 150,
+    startFrame: 1,
   },
   {
-    src: '/video/139.mp4',
-    totalFrames: 112,
-    fps: 30,
-    text: 'Section2',
+    title: '第二段內容',
+    folder: /video/frame-2,
+    frameCount: 150,
+    startFrame: 151,
   },
   {
-    src: '/video/250.mp4',
-    totalFrames: 50,
-    fps: 30,
-    text: 'Section3',
+    title: '第段內容',
+    folder: /video/frame-3,
+    frameCount: 150,
+    startFrame: 301,
   },
   {
-    src: '/video/299.mp4',
-    totalFrames: 153,
-    fps: 30,
-    text: 'Section4',
+    title: '第二段容',
+    folder: /video/frame-4,
+    frameCount: 150,
+    startFrame: 451,
   },
   {
-    src: '/video/451.mp4',
-    totalFrames: 86,
-    fps: 30,
-    text: 'Section5',
+    title: '第二段內',
+    folder: /video/frame-5,
+    frameCount: 150,
+    startFrame: 601,
   },
   {
-    src: '/video/536.mp4',
-    totalFrames: 63,
-    fps: 30,
-    text: 'Section6',
+    title: '二段內容',
+    folder: /video/frame-6,
+    frameCount: 150,
+    startFrame: 751,
   },
   {
-    src: '/video/598.mp4',
-    totalFrames: 103,
-    fps: 30,
-    text: 'Section7',
+    title: '段內容',
+    folder: /video/frame-7,
+    frameCount: 150,
+    startFrame: 901,
   },
 ]
 </script>
