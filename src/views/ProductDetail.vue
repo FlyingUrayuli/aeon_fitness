@@ -1,11 +1,22 @@
 <template>
-  <div class="min-h-screen bg-tranparent text-white">
+  <div class="min-h-screen bg-gray-100 text-white pt-8">
     <div class="container mx-auto px-4 py-8">
       <!-- 根據路由參數找到對應產品 -->
       <div v-if="currentProduct" class="max-w-7xl mx-auto">
         <!-- 標題區 -->
         <ProductDetailSection
           type="title"
+          :data="currentProduct"
+        />
+        <!-- 圖片展示區 -->
+        <ProductDetailSection
+          type="images"
+          :data="currentProduct"
+        />
+
+        <!-- 3D模型展示區 -->
+        <ProductDetailSection
+          type="model"
           :data="currentProduct"
         />
 
@@ -24,18 +35,6 @@
         <!-- 動力與坡度表現 -->
         <ProductDetailSection
           type="power"
-          :data="currentProduct"
-        />
-
-        <!-- 圖片展示區 -->
-        <ProductDetailSection
-          type="images"
-          :data="currentProduct"
-        />
-
-        <!-- 3D模型展示區 -->
-        <ProductDetailSection
-          type="model"
           :data="currentProduct"
         />
 

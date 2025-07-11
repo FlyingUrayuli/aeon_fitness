@@ -29,12 +29,21 @@ const router = createRouter({
       name: 'product-detail',
       component: ProductDetail,
       props: true,
+
     },
     {
       path: '/test',
       name: 'test',
-      component: Test3D,
-      props: true,
+      // component: Test3D,
+      // props: true,
+      component: () => import('../views/Test3D.vue'),
+    },
+    {
+      path: '/cart',
+      name: 'cart',
+      // component: Test3D,
+      // props: true,
+      component: () => import('../views/Cart.vue'),
     },
   ],
   scrollBehavior() {

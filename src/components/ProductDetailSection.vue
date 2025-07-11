@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-900 text-white p-8 rounded-lg shadow-lg mb-8">
+  <div class="bg-gray-600 text-white p-8 rounded-lg shadow-lg mb-8">
     <!-- 標題區 -->
     <div v-if="type === 'title'" class="text-center">
       <div class="flex justify-center items-center mb-6">
@@ -33,7 +33,7 @@
       <p class="text-gray-300 mb-6 font-stfangsong">拖拽滑鼠水平轉動，全方位觀看產品</p>
       <ThreeAnimation :modelPath="data.modelPath" />
     </div>
-    
+
     <!-- 避震技術 -->
     <div v-else-if="type === 'shock'" class="max-w-4xl mx-auto">
       <div class="flex items-center mb-6">
@@ -131,7 +131,7 @@
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          下載型錄
+          加入購物車
         </button>
       </div>
     </div>
