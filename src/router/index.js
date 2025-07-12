@@ -41,9 +41,12 @@ const router = createRouter({
     {
       path: '/cart',
       name: 'cart',
-      // component: Test3D,
-      // props: true,
       component: () => import('../views/Cart.vue'),
+    },
+    {
+      path: '/finish',       // 訂購完成頁
+      name: 'finish',
+      component: () => import('../views/FinishCart.vue'),
     },
   ],
   scrollBehavior() {

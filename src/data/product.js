@@ -23,6 +23,7 @@ export const products = [
     id: 'AZ40',
     name: 'AEON AZ40 跑步機',
     slogan: '小巧精緻，居家首選',
+    price:38800,
     image: [
       '/AEON-跑步機/AZ40/AZ40-01.png',
       '/AEON-跑步機/AZ40/AZ40-02.png',
@@ -83,6 +84,7 @@ export const products = [
     id: 'AZ50',
     name: 'AEON AZ50 跑步機',
     slogan: '性能均衡，居家運動首選',
+    price:46800,
     image: [
       '/AEON-跑步機/AZ50/AZ50-01.png',
       '/AEON-跑步機/AZ50/AZ50-02.png',
@@ -147,6 +149,7 @@ export const products = [
     id: 'AZ60',
     name: 'AEON AZ60 跑步機',
     slogan: '強力性能，專業訓練',
+    price:48800,
     image: [
       '/AEON-跑步機/AZ60/AZ60-01.png',
       '/AEON-跑步機/AZ60/AZ60-02.png',
@@ -211,6 +214,7 @@ export const products = [
     id: 'GT500',
     name: 'AEON GT-500 跑步機（中階/入門商用）',
     slogan: '商用品質，專業選擇',
+    price:68800,
     image: [
       '/AEON-跑步機/GT500/GT500-02.png',
     ],
@@ -272,6 +276,7 @@ export const products = [
     id: 'GT820',
     name: 'AEON GT-820 跑步機（中高階）',
     slogan: '進階性能，觸控體驗',
+    price:76800,
     image: [
       '/AEON-跑步機/GT820/GT820-01.png',
       '/AEON-跑步機/GT820/GT820-02.png',
@@ -335,6 +340,7 @@ export const products = [
     id: 'GT900',
     name: 'AEON GT-900 跑步機（高階專業型）',
     slogan: '頂級性能，專業極致',
+    price:88800,
     image: [
       '/AEON-跑步機/GT900/GT900-01.png',
       '/AEON-跑步機/GT900/GT900-02.png',

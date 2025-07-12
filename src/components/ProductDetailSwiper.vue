@@ -62,17 +62,21 @@ defineProps({
   transform: translateY(-50%);
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
-  font-size: 2rem;
+  font-size: 2.5rem;
   width: 40px;
   height: 40px;
   border: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-self: center;
+  text-align: center;
+  padding-left: 14px;
+  padding-bottom: 13px;
   cursor: pointer;
   z-index: 10;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.2s ease,
+  background-color 0.2s ease;
   pointer-events: auto; /* 可點擊 */
 }
 
@@ -82,11 +86,11 @@ defineProps({
 }
 
 .left-btn {
-  left: -10px;
+  left: 10px;
 }
 
 .right-btn {
-  right: -10px;
+  right: 10px;
 }
 
 </style>
