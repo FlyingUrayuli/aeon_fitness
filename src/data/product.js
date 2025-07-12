@@ -7,6 +7,17 @@ export const slides = [
   '/AEON-跑步機/GT900/GT900-01.png',
 ]
 
+// 將 features 陣列 `export` 出去，以便 HomeView 引入計算總高度
+export const features = [
+  { title: '智能追蹤', description: '自動記錄跑步數據，幫你保持進度' },
+  { title: '人體工學設計', description: '結合科技與美學，打造舒適跑步體驗' },
+  { title: '高效動力系統', description: '支援高速訓練，挑戰極限' },
+  { title: '多場景模式', description: '模擬戶外跑步場景，提升真實感' },
+  { title: '靜音設計', description: '即使深夜訓練也不影響家人休息' },
+  { title: '個人化訓練計畫', description: '根據你的目標自動推薦跑步計畫' },
+  { title: '雲端同步', description: '資料即時備份，手機隨時查閱進度' }
+];
+
 export const products = [
   {
     id: 'AZ40',

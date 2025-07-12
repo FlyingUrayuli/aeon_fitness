@@ -12,9 +12,11 @@
       <button class="text-gray-700 hover:text-black">
         <RouterLink to="/cart">購物車</RouterLink>
       </button>
+
       <button class="text-gray-700 hover:text-black">
         <RouterLink to="/test">3D模型展示區</RouterLink> <!-- 3D模型展示區 -->
       </button>
+
     </div>
     <div>
       <button class="text-gray-700 hover:text-black">

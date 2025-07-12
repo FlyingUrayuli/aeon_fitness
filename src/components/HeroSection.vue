@@ -1,46 +1,27 @@
-<!-- <template>
-  <section ref="heroRef" class="relative h-[600px] overflow-hidden">
-    <ThreeAnimation :width="width" :height="height" :pinTriggerEl="pinTriggerEl" />
+<!-- herosection.vue -->
+<template>
+  <section ref="heroSectionEl" class="relative w-full h-screen">
+    <!-- HeroAnimation 總是在這裡面 -->
+    <HeroAnimation />
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watchEffect } from 'vue'
-import ThreeAnimation from './ThreeAnimation.vue'
+import { ref } from 'vue'
+import HeroAnimation from './HeroAnimation.vue'
 
-const heroRef = ref(null)
-const width = ref(0)
-const height = ref(0)
-const pinTriggerEl = ref(null)
+const heroSectionEl = ref(null); // 這個 ref 將指向 <section> 元素
 
-function updateSize() {
-  if (!heroRef.value) return
-  width.value = heroRef.value.clientWidth
-  height.value = heroRef.value.clientHeight
-}
-
-onMounted(() => {
-  updateSize()
-  window.addEventListener('resize', updateSize)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateSize)
-})
-
-watchEffect(() => {
-  if (heroRef.value) {
-    pinTriggerEl.value = heroRef.value
-  }
-})
-</script> -->
+// 暴露 heroSectionEl 給父組件 (HomeView)
+defineExpose({ heroSectionEl });
+</script>
 
 <!-- src/components/HeroSection.vue -->
-<template>
+<!-- <template>
   <div>
-    <section ref="sectionRef" class="relative h-screen">
+    <section ref="sectionRef" class="relative h-screen"> -->
       <!-- 無限循環影片 -->
-      <video
+      <!-- <video
         v-if="!playTriggered"
         ref="loopVideoRef"
         class="fixed top-0 left-0 w-full h-screen object-cover z-10"
@@ -51,22 +32,26 @@ watchEffect(() => {
       >
         <source :src="loopVideoSrc" type="video/mp4" />
       </video>
-    </section>
+    </section> -->
 
     <!-- 單一 canvas 用來 render 所有 frame -->
-    <VideoScroll :sections="sections" />
+    <!-- <VideoScroll :sections="sections" /> -->
 
     <!-- 對應每段影片的文字說明 -->
-    <div v-for="(section, index) in sections" :key="index">
+    <!-- <div v-for="(section, index) in sections" :key="index">
       <FeatureSection :title="section.title" :index="index" />
     </div>
-  </div>
-</template>
+    <CustomerSection /> -->
 
-<script setup>
+
+  <!-- </div>
+</template> -->
+
+<!-- <script setup>
 import { ref } from 'vue'
 import VideoScroll from './VideoScroll.vue'
 import FeatureSection from './FeatureSection.vue'
+import CustomerSection from './CustomerSection.vue'
 
 const playTriggered = ref(false)
 const loopVideoRef = ref(null)
@@ -118,4 +103,4 @@ const sections = [
     startFrame: 901,
   },
 ]
-</script>
+</script> -->

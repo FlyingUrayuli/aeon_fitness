@@ -2,7 +2,7 @@
   <div class="test-3d-container">
     <h1 class="title">3D 動畫展示</h1>
     <p class="subtitle">滾動頁面來控制動畫播放，在頂端時動畫會循環播放</p>
-    
+
     <div class="model-display">
       <div ref="threeContainer" class="animation-display"></div>
     </div>
@@ -40,7 +40,7 @@ const rotationX = ref(0)
 
 const initThree = () => {
   scene.value = new THREE.Scene()
-  scene.value.background = new THREE.Color(0x1f2937)
+  scene.value.background = new THREE.Color(0xffffff)
   clock.value = new THREE.Clock()
 
   camera.value = new THREE.PerspectiveCamera(
@@ -49,8 +49,8 @@ const initThree = () => {
     0.1,
     1000
   )
-  camera.value.position.set(0, 1, 3)
-  camera.value.lookAt(0, 0, 0)
+  camera.value.position.set(0, 1, 2)
+  camera.value.lookAt(0, 0.5, 0)
 
   renderer.value = new THREE.WebGLRenderer({ antialias: true })
   renderer.value.setSize(
@@ -100,19 +100,19 @@ const loadModel = () => {
       if (gltf.animations && gltf.animations.length > 0) {
         mixer.value = new THREE.AnimationMixer(model.value)
         animations.value = gltf.animations
-        
+
         console.log('Available animations:', gltf.animations.map(anim => anim.name))
-        
+
         // 尋找要播放的動畫
-        const armatureAnimation = gltf.animations.find(anim => 
+        const armatureAnimation = gltf.animations.find(anim =>
           anim.name && anim.name.toLowerCase().includes('armature')
         )
-        const beltAnimation = gltf.animations.find(anim => 
+        const beltAnimation = gltf.animations.find(anim =>
           anim.name === 'belt_test.001'
         )
-        
+
         const playingAnimations = []
-        
+
         // 播放 Armature 動畫
         if (armatureAnimation) {
           console.log('Playing Armature animation:', armatureAnimation.name)
@@ -123,7 +123,7 @@ const loadModel = () => {
         } else {
           console.log('Armature animation not found')
         }
-        
+
         // 播放 belt_test.001 動畫
         if (beltAnimation) {
           console.log('Playing belt_test.001 animation:', beltAnimation.name)
@@ -134,7 +134,7 @@ const loadModel = () => {
         } else {
           console.log('belt_test.001 animation not found')
         }
-        
+
         // 更新 animations 陣列為正在播放的動畫
         if (playingAnimations.length > 0) {
           animations.value = playingAnimations
@@ -168,16 +168,16 @@ const onMouseMove = (event) => {
 
   const deltaX = event.clientX - mouseX.value
   const deltaY = event.clientY - mouseY.value
-  
+
   rotationY.value += deltaX * 0.01
   rotationX.value += deltaY * 0.01
-  
+
   // 限制 X 軸旋轉範圍，避免翻轉
   rotationX.value = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, rotationX.value))
-  
+
   model.value.rotation.y = rotationY.value
   model.value.rotation.x = rotationX.value
-  
+
   mouseX.value = event.clientX
   mouseY.value = event.clientY
 }
@@ -189,10 +189,10 @@ const onMouseUp = () => {
 
 const animate = () => {
   requestAnimationFrame(animate)
-  
+
   if (mixer.value && clock.value) {
     const delta = clock.value.getDelta()
-    
+
     if (isAtTop.value) {
       // 在頂端時正常播放動畫（循環播放）
       mixer.value.update(delta)
@@ -203,20 +203,20 @@ const animate = () => {
         animations.value.forEach(animation => {
           const animationDuration = animation.duration
           const targetTime = scrollProgress.value * animationDuration
-          
+
           // 為每個動畫設置時間
           const action = mixer.value.existingAction(animation)
           if (action) {
             action.time = targetTime
           }
         })
-        
+
         // 手動更新混合器但不增加時間
         mixer.value.update(0)
       }
     }
   }
-  
+
   if (renderer.value && scene.value && camera.value) {
     renderer.value.render(scene.value, camera.value)
   }
@@ -226,12 +226,12 @@ const handleScroll = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const windowHeight = window.innerHeight
   const documentHeight = document.documentElement.scrollHeight
-  
+
   // 計算滾動進度 (0-1)
   const maxScroll = documentHeight - windowHeight
   const progress = Math.min(scrollTop / maxScroll, 1)
   scrollProgress.value = progress
-  
+
   // 檢查是否在頂端 (容許一些誤差)
   isAtTop.value = scrollTop < 50
 }
@@ -250,7 +250,7 @@ const onWindowResize = () => {
 onMounted(() => {
   initThree()
   loadModel()
-  
+
   // 添加拖拽事件監聽器
   const container = threeContainer.value
   container.addEventListener('mousedown', onMouseDown)
@@ -258,10 +258,10 @@ onMounted(() => {
   container.addEventListener('mouseup', onMouseUp)
   container.addEventListener('mouseleave', onMouseUp)
   container.style.cursor = 'grab'
-  
+
   window.addEventListener('scroll', handleScroll)
   window.addEventListener('resize', onWindowResize)
-  
+
   // 初始化滾動狀態
   handleScroll()
 })
@@ -275,10 +275,10 @@ onBeforeUnmount(() => {
     container.removeEventListener('mouseup', onMouseUp)
     container.removeEventListener('mouseleave', onMouseUp)
   }
-  
+
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', onWindowResize)
-  
+
   if (renderer.value) {
     renderer.value.dispose()
   }
@@ -381,29 +381,29 @@ onBeforeUnmount(() => {
   .test-3d-container {
     padding: 1rem;
   }
-  
+
   .title {
     font-size: 2rem;
   }
-  
+
   .subtitle {
     font-size: 1rem;
   }
-  
+
   .model-display {
     height: 400px;
     position: relative;
     top: auto;
   }
-  
+
   .content-section {
     padding: 2rem;
   }
-  
+
   .content-section h2 {
     font-size: 1.5rem;
   }
-  
+
   .content-section p,
   .content-section li {
     font-size: 1rem;
