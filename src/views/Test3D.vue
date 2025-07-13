@@ -13,7 +13,7 @@
 import { ref, onMounted, onBeforeUnmount, shallowRef } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import modelUrl from '@/assets/video_AZ50_ver7.glb?url'
+import modelUrl from '@/assets/video_AZ50_ver17.glb?url'
 
 const selectedModel = ref(modelUrl)
 
@@ -27,7 +27,7 @@ const mixer = shallowRef(null)
 const animations = shallowRef([])
 const clock = shallowRef(null)
 
-// 滾動控制相關變數
+// 滾动控制相關變數
 const scrollProgress = ref(0)
 const isAtTop = ref(true)
 
@@ -37,6 +37,16 @@ const mouseX = ref(0)
 const mouseY = ref(0)
 const rotationY = ref(0)
 const rotationX = ref(0)
+
+// Material.005 材質控制相關變數
+const material005 = shallowRef(null)
+const textureScrollSettings = ref({
+  enabled: true,
+  direction: 'v', // 'u' (水平), 'v' (垂直)
+  speed: 0.01,
+  reverse: false
+})
+const materialOffset = ref({ u: 0, v: 0 })
 
 const initThree = () => {
   scene.value = new THREE.Scene()
@@ -49,8 +59,8 @@ const initThree = () => {
     0.1,
     1000
   )
-  camera.value.position.set(0, 1, 2)
-  camera.value.lookAt(0, 0.5, 0)
+  camera.value.position.set(0, -0.8, 1)
+  camera.value.lookAt(0, -1, 0)
 
   renderer.value = new THREE.WebGLRenderer({ antialias: true })
   renderer.value.setSize(
@@ -62,7 +72,7 @@ const initThree = () => {
   threeContainer.value.appendChild(renderer.value.domElement)
 
   // 設置燈光
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.6)
+  const ambientLight = new THREE.AmbientLight(0x404040, 1.5)
   scene.value.add(ambientLight)
 
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
@@ -91,6 +101,22 @@ const loadModel = () => {
         if (child.isMesh) {
           child.castShadow = true
           child.receiveShadow = true
+          
+          // 尋找並保存 Material.005
+          if (child.material && child.material.name === 'Material.005') {
+            material005.value = child
+            console.log('Found Material.005:', child)
+            console.log('Material type:', child.material.type)
+            console.log('Material map:', child.material.map)
+            
+            // 如果材質有貼圖，設置為可重複
+            if (child.material.map) {
+              child.material.map.wrapS = THREE.RepeatWrapping
+              child.material.map.wrapT = THREE.RepeatWrapping
+              child.material.needsUpdate = true
+              console.log('Material texture set to repeat wrapping')
+            }
+          }
         }
       })
 
@@ -155,6 +181,33 @@ const loadModel = () => {
   )
 }
 
+// Material.005 紋理滾動控制函數
+const updateTextureScroll = () => {
+  if (!textureScrollSettings.value.enabled || !material005.value || !material005.value.material.map) return
+  
+  const direction = textureScrollSettings.value.direction
+  const speed = textureScrollSettings.value.speed * (textureScrollSettings.value.reverse ? -1 : 1)
+  
+  // 更新 UV 偏移
+  materialOffset.value[direction] += speed
+  
+  // 保持偏移值在 0-1 範圍內循環
+  if (materialOffset.value[direction] > 1) {
+    materialOffset.value[direction] -= 1
+  } else if (materialOffset.value[direction] < 0) {
+    materialOffset.value[direction] += 1
+  }
+  
+  // 應用到材質
+  if (direction === 'u') {
+    material005.value.material.map.offset.x = materialOffset.value[direction]
+  } else {
+    material005.value.material.map.offset.y = materialOffset.value[direction]
+  }
+  
+  material005.value.material.needsUpdate = true
+}
+
 // 拖拽功能
 const onMouseDown = (event) => {
   isMouseDown.value = true
@@ -189,6 +242,9 @@ const onMouseUp = () => {
 
 const animate = () => {
   requestAnimationFrame(animate)
+
+  // 更新材質紋理滾動
+  updateTextureScroll()
 
   if (mixer.value && clock.value) {
     const delta = clock.value.getDelta()
@@ -290,7 +346,7 @@ onBeforeUnmount(() => {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  min-height: 300vh; /* 確保有足夠的滾動空間 */
+  min-height: 300vh; /* 確保有足夠的滾动空間 */
 }
 
 .title {
