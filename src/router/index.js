@@ -43,11 +43,7 @@ const router = createRouter({
       name: 'cart',
       component: () => import('../views/Cart.vue'),
     },
-    {
-      path: '/finish',       // 訂購完成頁
-      name: 'finish',
-      component: () => import('../views/FinishCart.vue'),
-    },
+    
   ],
   scrollBehavior() {
     return { top:0 };
