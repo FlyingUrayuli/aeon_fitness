@@ -4,7 +4,7 @@
     <!-- HeroSection 將被這個 HomeView 的 ScrollTrigger 固定 -->
     <HeroSection ref="heroSectionComponentRef" />
 
-
+    <!-- <CustomerSection /> -->
 
     <!-- CTASection 將在 Hero Section 滾動完成後顯示 -->
     <CTASection />
@@ -14,7 +14,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import HeroSection from '../components/HeroSection.vue'
-// import CustomerSection from '../components/CustomerSection.vue'
+import CustomerSection from '../components/CustomerSection.vue'
 import CTASection from '../components/CTASection.vue'
 
 import gsap from 'gsap'

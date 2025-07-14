@@ -7,15 +7,41 @@ export const slides = [
   '/AEON-跑步機/GT900/GT900-01.png',
 ]
 
-// 將 features 陣列 `export` 出去，以便 HomeView 引入計算總高度
+const homeViewData = {
+  title: 'AEON AZ50 — 結合效能與舒適的居家跑步首選。',
+  belt: 'AZ50 採用家用等級的高耐磨跑帶，具備優異的抓地力與防滑性能，即使長時間使用也不易變形。搭配柔性甲板與避震設計，減少對膝關節的衝擊，提升每一次步伐的穩定性與舒適度，是家庭健身不可或缺的核心配備。',
+  motor: 'AZ50 搭載 DC 3.0 馬力馬達，輸出穩定且強勁，最高可達 18 公里每小時，能滿足從走路、慢跑到快跑的多元訓練需求。不論是早晨喚醒身體的一公里輕跑，還是晚間強度訓練，AZ50 都能提供持續且穩定的動力支持。',
+  handle: '人體工學設計的跑步機扶手提供絕佳的握感與支撐，並內建心率感應器，使用者只需輕握即可即時掌握自身運動狀態。穩固的設計讓高強度運動時保持平衡更安心，是整體運動體驗中不可忽視的關鍵細節。',
+  controlPanel: '高質感 LED 控制面板結合感應式按鍵設計，觸控即反應。除了即時顯示心率、時間、速度等多項資訊，還內建多種訓練程式與目標模式，讓每一位使用者都能依照自己的需求進行個人化運動安排，輕鬆達成健身目標。',
+  screen: '面板整合清晰易讀的資訊顯示區域，無論是年長者或新手使用者，都能一目了然地掌握運動數據。搭配 LED 背光與簡潔圖示，提升操作便利性，即使在昏暗的環境中也能輕鬆查看與調整，增強運動安全與效率。',
+  summary: 'AEON AZ50 是一款結合舒適避震、高效馬達與智慧面板的全方位跑步機。搭載 AEON 專利 Soft Deck 技術，能有效降低關節衝擊，搭配 Air Shox 與心率感測器，大幅提升使用體驗。無論是初學者還是進階訓練者，AZ50 都能提供穩定、靜音且具挑戰性的運動體驗，是您居家健身的首選夥伴。',
+};
+
 export const features = [
-  { title: '智能追蹤', description: '自動記錄跑步數據，幫你保持進度' },
-  { title: '人體工學設計', description: '結合科技與美學，打造舒適跑步體驗' },
-  { title: '高效動力系統', description: '支援高速訓練，挑戰極限' },
-  { title: '多場景模式', description: '模擬戶外跑步場景，提升真實感' },
-  { title: '靜音設計', description: '即使深夜訓練也不影響家人休息' },
-  { title: '個人化訓練計畫', description: '根據你的目標自動推薦跑步計畫' },
-  { title: '雲端同步', description: '資料即時備份，手機隨時查閱進度' }
+  {
+    title: 'AEON AZ50', // 第一個 Section 使用主標題
+    description: homeViewData.title,
+  },
+  {
+    title: '高耐磨跑帶',
+    description: homeViewData.belt,
+  },
+  {
+    title: '強勁馬達',
+    description: homeViewData.motor,
+  },
+  {
+    title: '人體工學扶手',
+    description: homeViewData.handle,
+  },
+  {
+    title: '智慧控制與顯示', // 合併控制面板和顯示螢幕
+    description: `${homeViewData.controlPanel} ${homeViewData.screen}`,
+  },
+  {
+    title: '產品總結', // 最後一個 Section 是總結
+    description: homeViewData.summary,
+  },
 ];
 
 export const products = [
