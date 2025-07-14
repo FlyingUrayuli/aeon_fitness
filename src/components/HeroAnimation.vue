@@ -255,7 +255,9 @@ const animate = () => {
       // 在頂部時，只有 Armature 動畫自由循環播放
       if (armatureAnimationAction.value) {
         armatureAnimationAction.value.enabled = true;
-        armatureAnimationAction.value.setLoop(THREE.LoopRepeat);
+        armatureAnimationAction.value.setLoop(THREE.LoopRepeat); // 無限循環
+        armatureAnimationAction.value.paused = false; // 確保沒有暫停
+        // 在 isAtTop 時，Armature 的時間讓 mixer 自己更新
       }
       mixer.value.update(delta); // 更新 Armature 的時間
 
@@ -276,15 +278,13 @@ const animate = () => {
           motorCoverAnimationAction.value.enabled = false;
           motorCoverAnimationAction.value.time = 0;
       }
-      // 手動更新一次 mixer 以應用 time = 0 和 enabled 狀態
-      mixer.value.update(0);
+      mixer.value.update(0); // 手動更新一次 mixer 以應用 time = 0 和 enabled 狀態
 
     } else { // 不在頂部時（滾動中）
       console.log('State: Scrolling');
       const clientHeight = scrollContainer.value.clientHeight;
       const scrollTop = scrollContainer.value.scrollTop;
 
-      // 計算在當前 h-screen 區塊內的滾動進度 (0 到 1)
       const progressWithinCurrentSection = (scrollTop % clientHeight) / clientHeight;
 
       console.log(`currentSection: ${currentSection.value}`);
@@ -298,15 +298,36 @@ const animate = () => {
         console.log(`Camera Animation: Enabled=true, Time=${cameraAnimationAction.value.time.toFixed(2)}`);
       }
 
-      // Armature 動畫：滾動後一直播放 (與 Camera 同步)
+      // --- Armature 動畫的修改開始 ---
       if (armatureAnimationAction.value) {
         const armatureDuration = armatureAnimationAction.value.getClip().duration;
-        armatureAnimationAction.value.enabled = true; // 始終啟用
-        armatureAnimationAction.value.setLoop(THREE.LoopOnce); // 滾動後只播放一次
-        armatureAnimationAction.value.clampWhenFinished = true;
-        armatureAnimationAction.value.time = scrollProgress.value * armatureDuration;
-        console.log(`Armature Animation: Enabled=true, Time=${armatureAnimationAction.value.time.toFixed(2)}`);
+        const armaturePart = model.value ? model.value.getObjectByName('Armature') : null; // 找到Armature部分
+
+        if (currentSection.value < 2) { // 當 currentSection 是 0 或 1 時播放
+          armatureAnimationAction.value.enabled = true;
+          armatureAnimationAction.value.setLoop(THREE.LoopOnce); // 滾動後播放一次
+          armatureAnimationAction.value.clampWhenFinished = true;
+          armatureAnimationAction.value.time = scrollProgress.value * armatureDuration;
+          armatureAnimationAction.value.paused = false; // 確保沒有暫停
+          console.log(`Armature Animation: Enabled=true (Section < 2), Time=${armatureAnimationAction.value.time.toFixed(2)}`);
+
+          // 確保 Armature 模型在 Section 0 或 1 時是可見的
+          if (armaturePart) armaturePart.visible = true;
+
+        } else { // 當 currentSection >= 2 時，隱藏 Armature 模型
+          armatureAnimationAction.value.enabled = false;
+          // 這行設定時間到動畫結束，但由於 visible=false，實際不可見。
+          // 這樣做是為了保證內部狀態的一致性，如果未來需要瞬間顯示最後一幀，會正確。
+          armatureAnimationAction.value.time = armatureDuration;
+          armatureAnimationAction.value.paused = true; // 暫停動畫
+          console.log(`Armature Animation: Enabled=false (Section >= 2), Time=${armatureAnimationAction.value.time.toFixed(2)}`);
+
+          // 將 Armature 模型設定為不可見 - 這是讓它完全不顯示的關鍵
+          if (armaturePart) armaturePart.visible = false;
+        }
       }
+      // --- Armature 動畫的修改結束 ---
+
 
       // belt 動畫：在 currentSection === 0 時播放
       if (beltAnimationAction.value) {
@@ -317,8 +338,7 @@ const animate = () => {
           console.log(`Belt Animation: Enabled=true, Time=${beltAnimationAction.value.time.toFixed(2)}`);
         } else {
           beltAnimationAction.value.enabled = false;
-          // 滾動過第0個Section後，保持在最後一幀
-          if (scrollProgress.value > 0 && beltAnimationAction.value.getClip()) { // 確保 clip 存在
+          if (scrollProgress.value > 0 && beltAnimationAction.value.getClip()) {
               beltAnimationAction.value.time = beltAnimationAction.value.getClip().duration;
           } else {
               beltAnimationAction.value.time = 0;
@@ -342,8 +362,7 @@ const animate = () => {
         } else {
           motorAnimationAction.value.enabled = false;
           motorCoverAnimationAction.value.enabled = false;
-          // 滾動過後，保持在最後一幀；滾動到之前，保持在第一幀
-          if (currentSection.value > 1 && motorAnimationAction.value.getClip()) { // 確保 clip 存在
+          if (currentSection.value > 1 && motorAnimationAction.value.getClip()) {
               motorAnimationAction.value.time = motorAnimationAction.value.getClip().duration;
               motorCoverAnimationAction.value.time = motorCoverAnimationAction.value.getClip().duration;
           } else {
@@ -354,13 +373,10 @@ const animate = () => {
         }
       }
 
-      // 如果有更多 FeatureSection，可以繼續添加 currentSection.value === N 的判斷
-
       mixer.value.update(0); // 手動更新 mixer，不遞增時間
     }
   }
 
-  // 檢查攝影機是否已載入
   if (renderer.value && scene.value && camera.value) {
     renderer.value.render(scene.value, camera.value)
   }
