@@ -55,10 +55,19 @@ const clock = shallowRef(null)
 
 // 儲存特定動畫的 AnimationAction
 const cameraAnimationAction = shallowRef(null);
-const beltAnimationAction = shallowRef(null);
 const motorAnimationAction = shallowRef(null);
 const motorCoverAnimationAction = shallowRef(null);
 const armatureAnimationAction = shallowRef(null);
+
+// 跑帶紋理材質控制相關變數
+const beltTexture = shallowRef(null); // 已改名
+const textureScrollSettings = ref({
+  enabled: false, // 初始為 false，滾動時才啟用
+  direction: 'v', // 'u' (水平), 'v' (垂直)
+  speed: 0.2, // 調整這個值來控制滾動速度
+  reverse: false
+});
+const materialOffset = ref({ u: 0, v: 0 });
 
 // 滾動相關的響應式變數
 const scrollProgress = ref(0) // 總體滾動進度 (0-1)
@@ -73,7 +82,7 @@ const heroAnimationContainer = ref(null)
 // 2: 第二個 FeatureSection (2*clientHeight <= scrollTop < 3*clientHeight), 以此類推
 const currentSection = ref(0)
 
-// --- Three.js 初始化 --- (保持不變)
+// --- Three.js 初始化 ---
 const initThree = () => {
   scene.value = new THREE.Scene()
   scene.value.background = new THREE.Color(0xffffff)
@@ -143,6 +152,18 @@ const loadModel = () => {
         if (child.isMesh) {
           child.castShadow = true
           child.receiveShadow = true
+
+          // 尋找並保存 Material.005，設定其貼圖為可重複
+          if (child.material && child.material.name === 'Material.005') {
+            beltTexture.value = child.material;
+            console.log('Found Material.005 (now referred to as beltTexture):', beltTexture.value);
+            if (beltTexture.value.map) {
+              beltTexture.value.map.wrapS = THREE.RepeatWrapping;
+              beltTexture.value.map.wrapT = THREE.RepeatWrapping;
+              beltTexture.value.map.needsUpdate = true;
+              console.log('beltTexture map set to repeat wrapping');
+            }
+          }
         }
       })
 
@@ -168,19 +189,12 @@ const loadModel = () => {
           console.log('No camera animation found with name "Camera".');
         }
 
-        // 查找並設定 belt 動畫
+        // 已移除查找和處理 "belt" 原生動畫的邏輯
         const beltClip = gltf.animations.find(anim => anim.name === 'belt');
         if (beltClip) {
-          console.log('Found belt animation:', beltClip.name);
-          const action = mixer.value.clipAction(beltClip);
-          action.setLoop(THREE.LoopOnce);
-          action.clampWhenFinished = true;
-          action.play();
-          action.enabled = false; // 初始禁用
-          beltAnimationAction.value = action;
-        } else {
-          console.log('No belt animation found with name "belt".');
+            console.warn('Found "belt" animation in GLB, but it will not be used or processed. Its native playback is intentionally ignored.');
         }
+
 
         // 查找並設定 motor 動畫
         const motorClip = gltf.animations.find(anim => anim.name === 'motor');
@@ -215,7 +229,9 @@ const loadModel = () => {
         if (armatureClip) {
           console.log('Found Armature animation:', armatureClip.name);
           const action = mixer.value.clipAction(armatureClip);
-          action.setLoop(THREE.LoopRepeat); // 滾動前重複播放
+          // 為了手動控制循環，將其設定為 LoopOnce 並 clampWhenFinished
+          action.setLoop(THREE.LoopOnce);
+          action.clampWhenFinished = true; // 確保播放完畢後停留在最後一幀
           action.play(); // 立即播放
           armatureAnimationAction.value = action; // 儲存起來以備後續控制
         } else {
@@ -226,8 +242,7 @@ const loadModel = () => {
           console.log('No animations found in the model.');
       }
 
-      // 在攝影機和模型動畫設定完成後，才啟動動畫循環
-      animate();
+      animate(); // 在攝影機和模型動畫設定完成後，才啟動動畫循環
     },
     undefined,
     (error) => {
@@ -243,32 +258,71 @@ const loadModel = () => {
   )
 }
 
+// 跑帶紋理滾動控制函數
+const updateTextureScroll = () => {
+  if (!textureScrollSettings.value.enabled || !beltTexture.value || !beltTexture.value.map) return
+
+  const direction = textureScrollSettings.value.direction
+  const speed = textureScrollSettings.value.speed * (textureScrollSettings.value.reverse ? -1 : 1)
+
+  // 更新 UV 偏移
+  materialOffset.value[direction] += speed
+
+  // 保持偏移值在 0-1 範圍內循環，避免浮點數過大
+  materialOffset.value[direction] %= 1;
+  if (materialOffset.value[direction] < 0) {
+    materialOffset.value[direction] += 1;
+  }
+
+  // 應用到材質
+  if (direction === 'u') {
+    beltTexture.value.map.offset.x = materialOffset.value[direction]
+  } else {
+    beltTexture.value.map.offset.y = materialOffset.value[direction]
+  }
+
+  // 通知 Three.js 材質需要更新
+  beltTexture.value.map.needsUpdate = true
+}
+
+
 // --- 動畫循環 ---
 const animate = () => {
   requestAnimationFrame(animate)
+
+  // 在每一幀更新材質紋理滾動
+  updateTextureScroll()
 
   if (mixer.value && clock.value) {
     const delta = clock.value.getDelta()
 
     if (isAtTop.value) {
       console.log('State: At Top (isAtTop = true)');
-      // 在頂部時，只有 Armature 動畫自由循環播放
+      // 在頂部時，Armature 動畫自由循環播放
       if (armatureAnimationAction.value) {
         armatureAnimationAction.value.enabled = true;
-        armatureAnimationAction.value.setLoop(THREE.LoopRepeat); // 無限循環
+        // 手動控制循環，確保只播放前80%
+        const armatureDuration = armatureAnimationAction.value.getClip().duration;
+        const loopEnd = armatureDuration * 0.79; // 循環到 80%
+
+        // 遞增時間
+        armatureAnimationAction.value.time += delta;
+
+        // 如果時間超過了循環結束點，就重置到 0
+        if (armatureAnimationAction.value.time >= loopEnd) {
+          armatureAnimationAction.value.time = 0;
+        }
         armatureAnimationAction.value.paused = false; // 確保沒有暫停
-        // 在 isAtTop 時，Armature 的時間讓 mixer 自己更新
       }
-      mixer.value.update(delta); // 更新 Armature 的時間
+      // 在頂部時，跑帶貼圖動畫啟用
+      textureScrollSettings.value.enabled = true;
+
+      mixer.value.update(0); // 手動更新 Three.js 原生動畫，不遞增時間
 
       // 其他動畫在頂部時禁用並重置
       if (cameraAnimationAction.value) {
           cameraAnimationAction.value.enabled = false;
           cameraAnimationAction.value.time = 0;
-      }
-      if (beltAnimationAction.value) {
-          beltAnimationAction.value.enabled = false;
-          beltAnimationAction.value.time = 0;
       }
       if (motorAnimationAction.value) {
           motorAnimationAction.value.enabled = false;
@@ -278,17 +332,19 @@ const animate = () => {
           motorCoverAnimationAction.value.enabled = false;
           motorCoverAnimationAction.value.time = 0;
       }
-      mixer.value.update(0); // 手動更新一次 mixer 以應用 time = 0 和 enabled 狀態
+      // mixer.value.update(0); // 手動更新一次 mixer 以應用 time = 0 和 enabled 狀態
+      // 注意：這裡不需要額外的 mixer.update(0)，因為 armatureAnimationAction 的時間是手動控制的，
+      // 且其他動畫在 isAtTop 狀態下被重置為 0 並禁用，它們不會在 mixer.update(delta) 中前進。
+      // 為了確保動畫狀態立即更新，可以考慮在設定 time 和 enabled 後調用 mixer.update(0)。
+      // 但由於 animate 循環會持續調用 mixer.update(delta) (或這裡的 0)，通常不是問題。
 
     } else { // 不在頂部時（滾動中）
       console.log('State: Scrolling');
       const clientHeight = scrollContainer.value.clientHeight;
       const scrollTop = scrollContainer.value.scrollTop;
 
-      const progressWithinCurrentSection = (scrollTop % clientHeight) / clientHeight;
-
-      console.log(`currentSection: ${currentSection.value}`);
-      console.log(`scrollTop: ${scrollTop}, clientHeight: ${clientHeight}, progressWithinCurrentSection: ${progressWithinCurrentSection.toFixed(2)}`);
+      // 滾動時，跑帶貼圖動畫啟用
+      textureScrollSettings.value.enabled = true;
 
       // 攝影機動畫：貫穿整個滾動進度 (0% - 100% 的 HeroAnimation 內部滾動)
       if (cameraAnimationAction.value) {
@@ -298,67 +354,52 @@ const animate = () => {
         console.log(`Camera Animation: Enabled=true, Time=${cameraAnimationAction.value.time.toFixed(2)}`);
       }
 
-      // --- Armature 動畫的修改開始 ---
+      // Armature 動畫：根據滾動進度在 Section 0 和 1 播放，Section 2 後隱藏
       if (armatureAnimationAction.value) {
         const armatureDuration = armatureAnimationAction.value.getClip().duration;
-        const armaturePart = model.value ? model.value.getObjectByName('Armature') : null; // 找到Armature部分
+        const armaturePart = model.value ? model.value.getObjectByName('Armature') : null;
+
+        // 設定動畫循環的結束點為總時長的 80%
+        const loopEnd = armatureDuration * 0.8;
 
         if (currentSection.value < 2) { // 當 currentSection 是 0 或 1 時播放
           armatureAnimationAction.value.enabled = true;
-          armatureAnimationAction.value.setLoop(THREE.LoopOnce); // 滾動後播放一次
-          armatureAnimationAction.value.clampWhenFinished = true;
-          armatureAnimationAction.value.time = scrollProgress.value * armatureDuration;
-          armatureAnimationAction.value.paused = false; // 確保沒有暫停
-          console.log(`Armature Animation: Enabled=true (Section < 2), Time=${armatureAnimationAction.value.time.toFixed(2)}`);
+          armatureAnimationAction.value.paused = false;
 
-          // 確保 Armature 模型在 Section 0 或 1 時是可見的
-          if (armaturePart) armaturePart.visible = true;
+          // 計算基於滾動進度的動畫時間，並確保在 0 到 loopEnd 之間循環
+          // 將 scrollProgress 映射到 0 到 1 的範圍，然後乘以 loopEnd
+          // 這裡我們讓它在整個滾動進度中都保持循環，直到超過某個點
+          // 為了實現 "只播放動畫的80%並循環播放"，我們需要將滾動進度映射到這個 80% 的範圍內
+          // 例如，如果 scrollProgress 從 0 到 1，我們希望動畫時間在 0 到 loopEnd 之間循環
+          // 最簡單的方法是讓它自由播放，但當超過 loopEnd 時重置
+          armatureAnimationAction.value.time += delta; // 讓動畫時間遞增
+          if (armatureAnimationAction.value.time >= loopEnd) {
+            armatureAnimationAction.value.time = 0; // 重置到動畫開頭
+          }
+
+          if (armaturePart) armaturePart.visible = true; // 確保可見
 
         } else { // 當 currentSection >= 2 時，隱藏 Armature 模型
           armatureAnimationAction.value.enabled = false;
-          // 這行設定時間到動畫結束，但由於 visible=false，實際不可見。
-          // 這樣做是為了保證內部狀態的一致性，如果未來需要瞬間顯示最後一幀，會正確。
-          armatureAnimationAction.value.time = armatureDuration;
-          armatureAnimationAction.value.paused = true; // 暫停動畫
-          console.log(`Armature Animation: Enabled=false (Section >= 2), Time=${armatureAnimationAction.value.time.toFixed(2)}`);
-
-          // 將 Armature 模型設定為不可見 - 這是讓它完全不顯示的關鍵
-          if (armaturePart) armaturePart.visible = false;
-        }
-      }
-      // --- Armature 動畫的修改結束 ---
-
-
-      // belt 動畫：在 currentSection === 0 時播放
-      if (beltAnimationAction.value) {
-        if (currentSection.value === 0) {
-          const beltDuration = beltAnimationAction.value.getClip().duration;
-          beltAnimationAction.value.enabled = true;
-          beltAnimationAction.value.time = progressWithinCurrentSection * beltDuration;
-          console.log(`Belt Animation: Enabled=true, Time=${beltAnimationAction.value.time.toFixed(2)}`);
-        } else {
-          beltAnimationAction.value.enabled = false;
-          if (scrollProgress.value > 0 && beltAnimationAction.value.getClip()) {
-              beltAnimationAction.value.time = beltAnimationAction.value.getClip().duration;
-          } else {
-              beltAnimationAction.value.time = 0;
-          }
-          console.log(`Belt Animation: Enabled=false, Clamped Time=${beltAnimationAction.value.time.toFixed(2)}`);
+          // 停留在 80% 的最後一幀，而不是完全的最後一幀
+          armatureAnimationAction.value.time = loopEnd;
+          armatureAnimationAction.value.paused = true;
+          if (armaturePart) armaturePart.visible = false; // 設定為不可見
         }
       }
 
-      // motor 和 motor_cover 動畫：在 currentSection === 1 時播放 (第一個 FeatureSection)
+      // motor 和 motor_cover 動畫：在 currentSection === 1 時播放
       if (motorAnimationAction.value && motorCoverAnimationAction.value) {
         if (currentSection.value === 1) {
           const motorDuration = motorAnimationAction.value.getClip().duration;
           const motorCoverDuration = motorCoverAnimationAction.value.getClip().duration;
+          const progressWithinCurrentSection = (scrollTop - clientHeight) / clientHeight; // 針對 Section 1 計算進度
 
           motorAnimationAction.value.enabled = true;
           motorAnimationAction.value.time = progressWithinCurrentSection * motorDuration;
 
           motorCoverAnimationAction.value.enabled = true;
           motorCoverAnimationAction.value.time = progressWithinCurrentSection * motorCoverDuration;
-          console.log(`Motor/Cover Animation: Enabled=true, Time=${motorAnimationAction.value.time.toFixed(2)}`);
         } else {
           motorAnimationAction.value.enabled = false;
           motorCoverAnimationAction.value.enabled = false;
@@ -369,11 +410,10 @@ const animate = () => {
               motorAnimationAction.value.time = 0;
               motorCoverAnimationAction.value.time = 0;
           }
-          console.log(`Motor/Cover Animation: Enabled=false, Reset/Clamped Time=${motorAnimationAction.value.time.toFixed(2)}`);
         }
       }
 
-      mixer.value.update(0); // 手動更新 mixer，不遞增時間
+      mixer.value.update(0); // 手動更新 Three.js 原生動畫，不遞增時間
     }
   }
 
@@ -382,7 +422,7 @@ const animate = () => {
   }
 }
 
-// --- 滾動事件處理 --- (保持不變)
+// --- 滾動事件處理 ---
 const handleScroll = () => {
   const container = scrollContainer.value;
   if (!container) return;
@@ -395,17 +435,13 @@ const handleScroll = () => {
   const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
   scrollProgress.value = progress;
 
-  // currentSection 的計算方式：
-  // 0: 初始空白頁 (0 <= scrollTop < clientHeight)
-  // 1: 第一個 FeatureSection (clientHeight <= scrollTop < 2*clientHeight)
-  // 2: 第二個 FeatureSection (2*clientHeight <= scrollTop < 3*clientHeight), 以此類推
   currentSection.value = Math.floor(scrollTop / clientHeight);
 
-  isAtTop.value = scrollTop < 50; // 判斷是否在頁面頂部
+  isAtTop.value = scrollTop < 50;
 }
 
 
-// --- 視窗大小改變處理 --- (保持不變)
+// --- 視窗大小改變處理 ---
 const onWindowResize = () => {
   if (!camera.value || !renderer.value) return
 
@@ -423,8 +459,8 @@ const onWindowResize = () => {
 // --- Vue 生命周期鉤子 ---
 onMounted(() => {
   if (threeContainer.value && scrollContainer.value) {
-    initThree() // 初始化 Three.js 場景 (不包含攝影機)
-    loadModel() // 載入 3D 模型並設定攝影機
+    initThree()
+    loadModel()
 
     scrollContainer.value.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', onWindowResize)
@@ -447,36 +483,27 @@ onBeforeUnmount(() => {
         if (object.isMesh) {
           if (object.geometry) object.geometry.dispose();
           if (object.material) {
-            if (Array.isArray(object.material)) {
-              object.material.forEach(material => {
-                  material.map && material.map.dispose();
-                  material.lightMap && material.lightMap.dispose();
-                  material.bumpMap && material.bumpMap.dispose();
-                  material.normalMap && material.normalMap.dispose();
-                  material.specularMap && material.specularMap.dispose();
-                  material.envMap && material.envMap.dispose();
-                  material.dispose();
-              });
-            } else {
-              object.material.map && object.material.map.dispose();
-              object.material.lightMap && object.material.lightMap.dispose();
-              object.material.bumpMap && object.material.bumpMap.dispose();
-              object.material.normalMap && object.material.normalMap.dispose();
-              object.material.specularMap && object.material.specularMap.dispose();
-              object.material.envMap && object.material.envMap.dispose();
-              object.material.dispose();
-            }
+            // 處理單一材質或陣列材質
+            const materials = Array.isArray(object.material) ? object.material : [object.material];
+            materials.forEach(material => {
+                if (material.map) material.map.dispose();
+                material.dispose();
+            });
           }
         }
       });
     }
   }
-  // 停止並清理所有 AnimationAction
+  // 停止並清理所有 AnimationAction (如果定義了)
   cameraAnimationAction.value?.stop();
-  beltAnimationAction.value?.stop();
   motorAnimationAction.value?.stop();
   motorCoverAnimationAction.value?.stop();
   armatureAnimationAction.value?.stop();
+
+  if (mixer.value) {
+      mixer.value.stopAllAction();
+      mixer.value.uncacheRoot(mixer.value.getRoot());
+  }
 
   mixer.value = null;
   model.value = null;
@@ -484,6 +511,7 @@ onBeforeUnmount(() => {
   camera.value = null;
   renderer.value = null;
   clock.value = null;
+  beltTexture.value = null; // 清理材質引用
 })
 </script>
 
