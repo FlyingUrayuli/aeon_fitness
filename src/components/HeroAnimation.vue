@@ -18,8 +18,8 @@
           :description="feature.description"
           class="min-h-screen flex items-center justify-center bg-transparent"
           :class="{
-            'opacity-100': currentSection === (index),
-            'opacity-0': currentSection !== (index)
+            'opacity-100': currentSection === (index + 1), // FeatureSection 的 index 從 0 開始，但 currentSection 0 是初始空白頁
+            'opacity-0': currentSection !== (index + 1)
           }"
           :style="{ transition: 'opacity 0.7s ease-out' }"
           :scroller-element="scrollContainer"
@@ -47,22 +47,30 @@ const selectedModel = ref(modelUrl)
 // Three.js 相關的響應式變數
 const threeContainer = ref(null)
 const scene = shallowRef(null)
-const camera = shallowRef(null)
+const camera = shallowRef(null) // 攝影機將從 GLB 載入或設定
 const renderer = shallowRef(null)
 const model = shallowRef(null)
 const mixer = shallowRef(null)
-const animations = shallowRef([]) // 儲存所有受滾動控制的 AnimationClip
 const clock = shallowRef(null)
 
-const cameraAnimationAction = shallowRef(null); // 儲存攝影機動畫的 AnimationAction
+// 儲存特定動畫的 AnimationAction
+const cameraAnimationAction = shallowRef(null);
+const beltAnimationAction = shallowRef(null);
+const motorAnimationAction = shallowRef(null);
+const motorCoverAnimationAction = shallowRef(null);
+const armatureAnimationAction = shallowRef(null);
 
 // 滾動相關的響應式變數
-const scrollProgress = ref(0)
-const isAtTop = ref(true)
+const scrollProgress = ref(0) // 總體滾動進度 (0-1)
+const isAtTop = ref(true) // 是否在頁面頂部 (滾動條位置 < 50px)
 
 const scrollContainer = ref(null)
 const heroAnimationContainer = ref(null)
 
+// currentSection 表示當前滾動到的 h-screen 區塊索引
+// 0: 初始空白頁 (scrollTop < clientHeight)
+// 1: 第一個 FeatureSection (clientHeight <= scrollTop < 2*clientHeight)
+// 2: 第二個 FeatureSection (2*clientHeight <= scrollTop < 3*clientHeight), 以此類推
 const currentSection = ref(0)
 
 // --- Three.js 初始化 --- (保持不變)
@@ -113,23 +121,18 @@ const loadModel = () => {
       model.value = gltf.scene
 
       // 1. 設定攝影機 (從 GLB 或備用)
-      // 增加穩健性檢查：確保 gltf.cameras 存在且非空
       if (gltf.cameras && gltf.cameras.length > 0) {
-        camera.value = gltf.cameras[0]; // 使用模型中的第一個攝影機
+        camera.value = gltf.cameras[0];
         console.log('Using GLB camera:', camera.value);
-        // 確保攝影機的 aspect ratio 與視窗一致
         camera.value.aspect = window.innerWidth / window.innerHeight;
         camera.value.updateProjectionMatrix();
-        // 將攝影機添加到場景中，這樣它的動畫才能被 mixer 找到並控制
-        // 如果攝影機已經是場景的一部分，這行是多餘的，但通常不會造成問題
-        // gltf.scene.add(camera.value); // 或者 scene.value.add(camera.value);
       } else {
         console.warn('No camera found in GLB model. Using default Three.js camera.');
         const width = window.innerWidth;
         const height = window.innerHeight;
         camera.value = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-        camera.value.position.set(0, 1, 2.25); // 備用攝影機位置
-        camera.value.lookAt(0, 0.5, 0); // 備用攝影機看向目標
+        camera.value.position.set(0, 1, 2.25);
+        camera.value.lookAt(0, 0.5, 0);
       }
 
       model.value.scale.set(1, 1, 1)
@@ -145,72 +148,80 @@ const loadModel = () => {
 
       scene.value.add(model.value)
 
-      // 2. 處理動畫 (包括攝影機動畫)
+      // 2. 處理動畫 (包括攝影機動畫和分階段播放的物件動畫)
       if (gltf.animations && gltf.animations.length > 0) {
-        mixer.value = new THREE.AnimationMixer(model.value); // Mixer 作用於主模型
+        mixer.value = new THREE.AnimationMixer(model.value);
 
-        const playingAnimationClips = []; // 儲存受滾動控制的動畫片段
+        console.log('Available animations in GLB:', gltf.animations.map(anim => anim.name));
 
-        // 嘗試找到攝影機動畫 (根據名稱 'Camera')
-        const foundCameraAnimation = gltf.animations.find(anim =>
-          anim.name === 'Camera' // 精確匹配名稱
-        );
-
-        if (foundCameraAnimation) {
-          console.log('Found camera animation:', foundCameraAnimation.name);
-          // 確保攝影機是 mixer 的目標，或者將攝影機添加到模型中
-          // 如果攝影機是場景的一部分，mixer 應該能找到它
-          const action = mixer.value.clipAction(foundCameraAnimation);
-          action.setLoop(THREE.LoopOnce); // 攝影機動畫通常只播放一次
-          action.clampWhenFinished = true; // 結束時保持最後一幀
-          action.play(); // 播放一次以激活動畫，但我們會手動控制時間
-          action.paused = true; // 初始暫停，由滾動控制
-          cameraAnimationAction.value = action; // 儲存 action
-          playingAnimationClips.push(foundCameraAnimation); // 將攝影機動畫片段加入列表
+        // 查找並設定攝影機動畫
+        const cameraClip = gltf.animations.find(anim => anim.name === 'Camera');
+        if (cameraClip) {
+          console.log('Found camera animation:', cameraClip.name);
+          const action = mixer.value.clipAction(cameraClip);
+          action.setLoop(THREE.LoopOnce);
+          action.clampWhenFinished = true;
+          action.play();
+          action.enabled = false; // 初始禁用，由滾動控制
+          cameraAnimationAction.value = action;
         } else {
           console.log('No camera animation found with name "Camera".');
         }
 
-        // 現有的模型動畫邏輯 (Armature, belt)
-        const armatureAnimation = gltf.animations.find(anim =>
-          anim.name === 'Armature' // 精確匹配名稱
-        );
-        if (armatureAnimation) {
-          console.log('Playing Armature animation:', armatureAnimation.name);
-          const armatureAction = mixer.value.clipAction(armatureAnimation);
-          armatureAction.setLoop(THREE.LoopRepeat); // 模型動畫循環播放
-          armatureAction.play();
-          playingAnimationClips.push(armatureAnimation);
+        // 查找並設定 belt 動畫
+        const beltClip = gltf.animations.find(anim => anim.name === 'belt');
+        if (beltClip) {
+          console.log('Found belt animation:', beltClip.name);
+          const action = mixer.value.clipAction(beltClip);
+          action.setLoop(THREE.LoopOnce);
+          action.clampWhenFinished = true;
+          action.play();
+          action.enabled = false; // 初始禁用
+          beltAnimationAction.value = action;
         } else {
-          console.log('Armature animation not found with name "Armature".');
+          console.log('No belt animation found with name "belt".');
         }
 
-        const beltAnimation = gltf.animations.find(anim =>
-          anim.name === 'belt' // 精確匹配名稱
-        );
-        if (beltAnimation) {
-          console.log('Playing belt animation:', beltAnimation.name);
-          const beltAction = mixer.value.clipAction(beltAnimation);
-          beltAction.setLoop(THREE.LoopRepeat); // 模型動畫循環播放
-          beltAction.play();
-          playingAnimationClips.push(beltAnimation);
+        // 查找並設定 motor 動畫
+        const motorClip = gltf.animations.find(anim => anim.name === 'motor');
+        if (motorClip) {
+          console.log('Found motor animation:', motorClip.name);
+          const action = mixer.value.clipAction(motorClip);
+          action.setLoop(THREE.LoopOnce);
+          action.clampWhenFinished = true;
+          action.play();
+          action.enabled = false; // 初始禁用
+          motorAnimationAction.value = action;
         } else {
-          console.log('belt animation not found with name "belt".');
+          console.log('No motor animation found with name "motor".');
         }
 
-        if (playingAnimationClips.length > 0) {
-          animations.value = playingAnimationClips; // 儲存所有受滾動控制的動畫片段
-          console.log(`Controlling ${playingAnimationClips.length} animations simultaneously by scroll.`);
+        // 查找並設定 motor_cover 動畫
+        const motorCoverClip = gltf.animations.find(anim => anim.name === 'motor_cover');
+        if (motorCoverClip) {
+          console.log('Found motor_cover animation:', motorCoverClip.name);
+          const action = mixer.value.clipAction(motorCoverClip);
+          action.setLoop(THREE.LoopOnce);
+          action.clampWhenFinished = true;
+          action.play();
+          action.enabled = false; // 初始禁用
+          motorCoverAnimationAction.value = action;
         } else {
-          console.log('No target animations found or controlled by scroll.');
-          // 備用：如果沒有找到受滾動控制的動畫，且有其他動畫，則播放第一個
-          if (gltf.animations.length > 0) {
-              const action = mixer.value.clipAction(gltf.animations[0]);
-              action.setLoop(THREE.LoopRepeat);
-              action.play();
-              animations.value = [gltf.animations[0]]; // 仍然保留在 animations.value 以保持一致性
-          }
+          console.log('No motor_cover animation found with name "motor_cover".');
         }
+
+        // 查找並設定 Armature 動畫
+        const armatureClip = gltf.animations.find(anim => anim.name === 'Armature');
+        if (armatureClip) {
+          console.log('Found Armature animation:', armatureClip.name);
+          const action = mixer.value.clipAction(armatureClip);
+          action.setLoop(THREE.LoopRepeat); // 滾動前重複播放
+          action.play(); // 立即播放
+          armatureAnimationAction.value = action; // 儲存起來以備後續控制
+        } else {
+          console.log('No Armature animation found with name "Armature".');
+        }
+
       } else {
           console.log('No animations found in the model.');
       }
@@ -240,32 +251,112 @@ const animate = () => {
     const delta = clock.value.getDelta()
 
     if (isAtTop.value) {
-      // 在頂部時，讓 mixer 自由更新循環動畫
-      mixer.value.update(delta);
-      // 將攝影機動畫重置到開始並暫停
+      console.log('State: At Top (isAtTop = true)');
+      // 在頂部時，只有 Armature 動畫自由循環播放
+      if (armatureAnimationAction.value) {
+        armatureAnimationAction.value.enabled = true;
+        armatureAnimationAction.value.setLoop(THREE.LoopRepeat);
+      }
+      mixer.value.update(delta); // 更新 Armature 的時間
+
+      // 其他動畫在頂部時禁用並重置
       if (cameraAnimationAction.value) {
+          cameraAnimationAction.value.enabled = false;
           cameraAnimationAction.value.time = 0;
-          cameraAnimationAction.value.paused = true;
-          // 確保攝影機位置/旋轉被重置到動畫的第一幀
-          // 這一步很重要，因為 clampWhenFinished = true 會讓它停在最後一幀
-          // 需要手動強制更新一次以應用 time = 0
-          mixer.value.update(0);
       }
-    } else {
-      // 滾動時，手動控制動畫時間
-      if (animations.value.length > 0) {
-        animations.value.forEach(animationClip => {
-          const animationDuration = animationClip.duration;
-          const targetTime = scrollProgress.value * animationDuration;
-          const action = mixer.value.existingAction(animationClip);
-          if (action) {
-            action.time = targetTime;
-            action.paused = false; // 確保動畫未暫停
-            action.enabled = true; // 確保動畫已啟用
+      if (beltAnimationAction.value) {
+          beltAnimationAction.value.enabled = false;
+          beltAnimationAction.value.time = 0;
+      }
+      if (motorAnimationAction.value) {
+          motorAnimationAction.value.enabled = false;
+          motorAnimationAction.value.time = 0;
+      }
+      if (motorCoverAnimationAction.value) {
+          motorCoverAnimationAction.value.enabled = false;
+          motorCoverAnimationAction.value.time = 0;
+      }
+      // 手動更新一次 mixer 以應用 time = 0 和 enabled 狀態
+      mixer.value.update(0);
+
+    } else { // 不在頂部時（滾動中）
+      console.log('State: Scrolling');
+      const clientHeight = scrollContainer.value.clientHeight;
+      const scrollTop = scrollContainer.value.scrollTop;
+
+      // 計算在當前 h-screen 區塊內的滾動進度 (0 到 1)
+      const progressWithinCurrentSection = (scrollTop % clientHeight) / clientHeight;
+
+      console.log(`currentSection: ${currentSection.value}`);
+      console.log(`scrollTop: ${scrollTop}, clientHeight: ${clientHeight}, progressWithinCurrentSection: ${progressWithinCurrentSection.toFixed(2)}`);
+
+      // 攝影機動畫：貫穿整個滾動進度 (0% - 100% 的 HeroAnimation 內部滾動)
+      if (cameraAnimationAction.value) {
+        const cameraDuration = cameraAnimationAction.value.getClip().duration;
+        cameraAnimationAction.value.enabled = true; // 始終啟用
+        cameraAnimationAction.value.time = scrollProgress.value * cameraDuration;
+        console.log(`Camera Animation: Enabled=true, Time=${cameraAnimationAction.value.time.toFixed(2)}`);
+      }
+
+      // Armature 動畫：滾動後一直播放 (與 Camera 同步)
+      if (armatureAnimationAction.value) {
+        const armatureDuration = armatureAnimationAction.value.getClip().duration;
+        armatureAnimationAction.value.enabled = true; // 始終啟用
+        armatureAnimationAction.value.setLoop(THREE.LoopOnce); // 滾動後只播放一次
+        armatureAnimationAction.value.clampWhenFinished = true;
+        armatureAnimationAction.value.time = scrollProgress.value * armatureDuration;
+        console.log(`Armature Animation: Enabled=true, Time=${armatureAnimationAction.value.time.toFixed(2)}`);
+      }
+
+      // belt 動畫：在 currentSection === 0 時播放
+      if (beltAnimationAction.value) {
+        if (currentSection.value === 0) {
+          const beltDuration = beltAnimationAction.value.getClip().duration;
+          beltAnimationAction.value.enabled = true;
+          beltAnimationAction.value.time = progressWithinCurrentSection * beltDuration;
+          console.log(`Belt Animation: Enabled=true, Time=${beltAnimationAction.value.time.toFixed(2)}`);
+        } else {
+          beltAnimationAction.value.enabled = false;
+          // 滾動過第0個Section後，保持在最後一幀
+          if (scrollProgress.value > 0 && beltAnimationAction.value.getClip()) { // 確保 clip 存在
+              beltAnimationAction.value.time = beltAnimationAction.value.getClip().duration;
+          } else {
+              beltAnimationAction.value.time = 0;
           }
-        });
-        mixer.value.update(0); // 手動更新 mixer，不遞增時間
+          console.log(`Belt Animation: Enabled=false, Clamped Time=${beltAnimationAction.value.time.toFixed(2)}`);
+        }
       }
+
+      // motor 和 motor_cover 動畫：在 currentSection === 1 時播放 (第一個 FeatureSection)
+      if (motorAnimationAction.value && motorCoverAnimationAction.value) {
+        if (currentSection.value === 1) {
+          const motorDuration = motorAnimationAction.value.getClip().duration;
+          const motorCoverDuration = motorCoverAnimationAction.value.getClip().duration;
+
+          motorAnimationAction.value.enabled = true;
+          motorAnimationAction.value.time = progressWithinCurrentSection * motorDuration;
+
+          motorCoverAnimationAction.value.enabled = true;
+          motorCoverAnimationAction.value.time = progressWithinCurrentSection * motorCoverDuration;
+          console.log(`Motor/Cover Animation: Enabled=true, Time=${motorAnimationAction.value.time.toFixed(2)}`);
+        } else {
+          motorAnimationAction.value.enabled = false;
+          motorCoverAnimationAction.value.enabled = false;
+          // 滾動過後，保持在最後一幀；滾動到之前，保持在第一幀
+          if (currentSection.value > 1 && motorAnimationAction.value.getClip()) { // 確保 clip 存在
+              motorAnimationAction.value.time = motorAnimationAction.value.getClip().duration;
+              motorCoverAnimationAction.value.time = motorCoverAnimationAction.value.getClip().duration;
+          } else {
+              motorAnimationAction.value.time = 0;
+              motorCoverAnimationAction.value.time = 0;
+          }
+          console.log(`Motor/Cover Animation: Enabled=false, Reset/Clamped Time=${motorAnimationAction.value.time.toFixed(2)}`);
+        }
+      }
+
+      // 如果有更多 FeatureSection，可以繼續添加 currentSection.value === N 的判斷
+
+      mixer.value.update(0); // 手動更新 mixer，不遞增時間
     }
   }
 
@@ -288,15 +379,18 @@ const handleScroll = () => {
   const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
   scrollProgress.value = progress;
 
+  // currentSection 的計算方式：
+  // 0: 初始空白頁 (0 <= scrollTop < clientHeight)
+  // 1: 第一個 FeatureSection (clientHeight <= scrollTop < 2*clientHeight)
+  // 2: 第二個 FeatureSection (2*clientHeight <= scrollTop < 3*clientHeight), 以此類推
   currentSection.value = Math.floor(scrollTop / clientHeight);
 
-  isAtTop.value = scrollTop < 50;
+  isAtTop.value = scrollTop < 50; // 判斷是否在頁面頂部
 }
 
 
-// --- 視窗大小改變處理 ---
+// --- 視窗大小改變處理 --- (保持不變)
 const onWindowResize = () => {
-  // 檢查攝影機是否已載入
   if (!camera.value || !renderer.value) return
 
   camera.value.aspect = window.innerWidth / window.innerHeight;
@@ -361,13 +455,19 @@ onBeforeUnmount(() => {
       });
     }
   }
+  // 停止並清理所有 AnimationAction
+  cameraAnimationAction.value?.stop();
+  beltAnimationAction.value?.stop();
+  motorAnimationAction.value?.stop();
+  motorCoverAnimationAction.value?.stop();
+  armatureAnimationAction.value?.stop();
+
   mixer.value = null;
   model.value = null;
   scene.value = null;
   camera.value = null;
   renderer.value = null;
   clock.value = null;
-  animations.value = [];
 })
 </script>
 
