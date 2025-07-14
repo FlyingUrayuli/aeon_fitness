@@ -59,12 +59,16 @@ const motorAnimationAction = shallowRef(null);
 const motorCoverAnimationAction = shallowRef(null);
 const armatureAnimationAction = shallowRef(null);
 
+// 新增馬達動畫區塊的定向光
+const directionalLightMotor = shallowRef(null);
+const directionalLightMotorTarget = shallowRef(new THREE.Object3D());
+
 // 跑帶紋理材質控制相關變數
 const beltTexture = shallowRef(null); // 已改名
 const textureScrollSettings = ref({
   enabled: false, // 初始為 false，滾動時才啟用
   direction: 'v', // 'u' (水平), 'v' (垂直)
-  speed: 0.2, // 調整這個值來控制滾動速度
+  speed: 0.05, // **跑帶材質動畫速度已修改為 0.2**
   reverse: false
 });
 const materialOffset = ref({ u: 0, v: 0 });
@@ -101,23 +105,43 @@ const initThree = () => {
   const ambientLight = new THREE.AmbientLight(0xffffff, 1.0)
   scene.value.add(ambientLight)
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
-  directionalLight.position.set(0, 10, 0)
-  directionalLight.target.position.set(0, 0, 0);
-  scene.value.add(directionalLight.target);
-  directionalLight.castShadow = true
+  const mainDirectionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
+  mainDirectionalLight.position.set(0, 10, 0)
+  mainDirectionalLight.target.position.set(0, 0, 0);
+  scene.value.add(mainDirectionalLight.target);
+  mainDirectionalLight.castShadow = true
+  mainDirectionalLight.shadow.mapSize.width = 1024;
+  mainDirectionalLight.shadow.mapSize.height = 1024;
+  mainDirectionalLight.shadow.camera.near = 0.5;
+  mainDirectionalLight.shadow.camera.far = 50;
+  mainDirectionalLight.shadow.camera.left = -5;
+  mainDirectionalLight.shadow.camera.right = 5;
+  mainDirectionalLight.shadow.camera.top = 5;
+  mainDirectionalLight.shadow.camera.bottom = -5;
+  mainDirectionalLight.shadow.bias = -0.0001;
+  scene.value.add(mainDirectionalLight)
 
-  directionalLight.shadow.mapSize.width = 1024;
-  directionalLight.shadow.mapSize.height = 1024;
-  directionalLight.shadow.camera.near = 0.5;
-  directionalLight.shadow.camera.far = 50;
-  directionalLight.shadow.camera.left = -5;
-  directionalLight.shadow.camera.right = 5;
-  directionalLight.shadow.camera.top = 5;
-  directionalLight.shadow.camera.bottom = -5;
-  directionalLight.shadow.bias = -0.0001;
+  // **將 directionalLightMotor 替換為 PointLight (球面光)**
+  // directionalLightMotor.value 已經是 shallowRef(null) 了，可以直接賦值
+  directionalLightMotor.value = new THREE.PointLight(0xffffff, 25, 2); // 顏色，強度，距離 (2 個單位後衰減為 0)
+  // 將光源位置設定在馬達下方，比馬達的 Y 座標 0.90 低
+  directionalLightMotor.value.position.set(-0.4, 0.6, -0.2); // Y 值設定為 0.5
+  directionalLightMotor.value.castShadow = true; // 球面光也可以投射陰影
 
-  scene.value.add(directionalLight)
+  // PointLight 的 shadow.camera 設置與 DirectionalLight 不同，
+  // PointLight 的陰影攝像機是一個 PerspectiveCamera。
+  directionalLightMotor.value.shadow.mapSize.width = 512;
+  directionalLightMotor.value.shadow.mapSize.height = 512;
+  directionalLightMotor.value.shadow.camera.near = 0.1; // 必須大於 0
+  directionalLightMotor.value.shadow.camera.far = 10; // 影響陰影範圍，應大於光源的距離參數
+
+  directionalLightMotor.value.visible = false; // 初始仍不可見
+  scene.value.add(directionalLightMotor.value);
+  // PointLight 沒有 target 屬性，因為它是從一個點向所有方向發散。
+  // 所以 directionalLightMotorTarget 就不需要了，也不需要添加到場景中。
+  // 但由於它在其他地方有引用，我們暫時保留它的宣告，只是不使用它。
+  // 如果你確定不需要 directionalLightMotorTarget 了，可以在變數宣告時直接移除。
+  // 目前它不會造成錯誤，因為 PointLight 不會使用它。
 }
 
 // --- 模型載入 ---
@@ -130,19 +154,26 @@ const loadModel = () => {
       model.value = gltf.scene
 
       // 1. 設定攝影機 (從 GLB 或備用)
-      if (gltf.cameras && gltf.cameras.length > 0) {
+      // 更嚴謹地檢查 gltf.cameras[0] 是否有效
+      if (gltf.cameras && gltf.cameras.length > 0 && gltf.cameras[0]) {
         camera.value = gltf.cameras[0];
         console.log('Using GLB camera:', camera.value);
-        camera.value.aspect = window.innerWidth / window.innerHeight;
-        camera.value.updateProjectionMatrix();
       } else {
-        console.warn('No camera found in GLB model. Using default Three.js camera.');
+        console.warn('No valid camera found in GLB model or gltf.cameras[0] is undefined. Using default Three.js camera.');
         const width = window.innerWidth;
         const height = window.innerHeight;
         camera.value = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
         camera.value.position.set(0, 1, 2.25);
         camera.value.lookAt(0, 0.5, 0);
       }
+      // 無論哪種情況，都更新攝影機的 Aspect Ratio
+      if (camera.value) { // 增加一個防護，確保 camera.value 存在才設定屬性
+          camera.value.aspect = window.innerWidth / window.innerHeight;
+          camera.value.updateProjectionMatrix();
+      } else {
+          console.error("Camera is still undefined after loadModel attempt!");
+      }
+
 
       model.value.scale.set(1, 1, 1)
       model.value.position.set(0, 0, 0)
@@ -229,11 +260,12 @@ const loadModel = () => {
         if (armatureClip) {
           console.log('Found Armature animation:', armatureClip.name);
           const action = mixer.value.clipAction(armatureClip);
-          // 為了手動控制循環，將其設定為 LoopOnce 並 clampWhenFinished
+          // 初始設定為播放一次並停留在最後一幀，時間由 animate 函數控制
           action.setLoop(THREE.LoopOnce);
-          action.clampWhenFinished = true; // 確保播放完畢後停留在最後一幀
-          action.play(); // 立即播放
-          armatureAnimationAction.value = action; // 儲存起來以備後續控制
+          action.clampWhenFinished = true;
+          action.play();
+          action.enabled = true;
+          armatureAnimationAction.value = action;
         } else {
           console.log('No Armature animation found with name "Armature".');
         }
@@ -266,19 +298,19 @@ const updateTextureScroll = () => {
   const speed = textureScrollSettings.value.speed * (textureScrollSettings.value.reverse ? -1 : 1)
 
   // 更新 UV 偏移
-  materialOffset.value[direction] += speed
+  materialOffset.value [direction] += speed
 
   // 保持偏移值在 0-1 範圍內循環，避免浮點數過大
-  materialOffset.value[direction] %= 1;
-  if (materialOffset.value[direction] < 0) {
-    materialOffset.value[direction] += 1;
+  materialOffset.value [direction] %= 1;
+  if (materialOffset.value [direction] < 0) {
+    materialOffset.value [direction] += 1;
   }
 
   // 應用到材質
   if (direction === 'u') {
-    beltTexture.value.map.offset.x = materialOffset.value[direction]
+    beltTexture.value.map.offset.x = materialOffset.value [direction]
   } else {
-    beltTexture.value.map.offset.y = materialOffset.value[direction]
+    beltTexture.value.map.offset.y = materialOffset.value [direction]
   }
 
   // 通知 Three.js 材質需要更新
@@ -296,28 +328,30 @@ const animate = () => {
   if (mixer.value && clock.value) {
     const delta = clock.value.getDelta()
 
+    // 處理 Armature 模型的可見性
+    const armaturePart = model.value ? model.value.getObjectByName('Armature') : null;
+
     if (isAtTop.value) {
-      console.log('State: At Top (isAtTop = true)');
-      // 在頂部時，Armature 動畫自由循環播放
+      // console.log('State: At Top (isAtTop = true)');
+      // 在頂部時，Armature 動畫播放前 79% 並循環
       if (armatureAnimationAction.value) {
         armatureAnimationAction.value.enabled = true;
-        // 手動控制循環，確保只播放前80%
         const armatureDuration = armatureAnimationAction.value.getClip().duration;
-        const loopEnd = armatureDuration * 0.79; // 循環到 80%
+        const loopEnd = armatureDuration * 0.79; // **循環到 79% 處**
 
-        // 遞增時間
-        armatureAnimationAction.value.time += delta;
+        armatureAnimationAction.value.time += delta * 0.2; // 讓動畫時間遞增
 
         // 如果時間超過了循環結束點，就重置到 0
         if (armatureAnimationAction.value.time >= loopEnd) {
           armatureAnimationAction.value.time = 0;
         }
         armatureAnimationAction.value.paused = false; // 確保沒有暫停
+        if (armaturePart) armaturePart.visible = true; // 確保可見
       }
       // 在頂部時，跑帶貼圖動畫啟用
       textureScrollSettings.value.enabled = true;
 
-      mixer.value.update(0); // 手動更新 Three.js 原生動畫，不遞增時間
+      mixer.value.update(delta); // 更新 Three.js 原生動畫的時間
 
       // 其他動畫在頂部時禁用並重置
       if (cameraAnimationAction.value) {
@@ -332,16 +366,13 @@ const animate = () => {
           motorCoverAnimationAction.value.enabled = false;
           motorCoverAnimationAction.value.time = 0;
       }
-      // mixer.value.update(0); // 手動更新一次 mixer 以應用 time = 0 和 enabled 狀態
-      // 注意：這裡不需要額外的 mixer.update(0)，因為 armatureAnimationAction 的時間是手動控制的，
-      // 且其他動畫在 isAtTop 狀態下被重置為 0 並禁用，它們不會在 mixer.update(delta) 中前進。
-      // 為了確保動畫狀態立即更新，可以考慮在設定 time 和 enabled 後調用 mixer.update(0)。
-      // 但由於 animate 循環會持續調用 mixer.update(delta) (或這裡的 0)，通常不是問題。
-
+      if (directionalLightMotor.value) { // 確保光線物件存在才操作
+        directionalLightMotor.value.visible = false; // 頂部時隱藏馬達光
+      }
     } else { // 不在頂部時（滾動中）
-      console.log('State: Scrolling');
+      // console.log('State: Scrolling');
       const clientHeight = scrollContainer.value.clientHeight;
-      const scrollTop = scrollContainer.value.scrollTop;
+      // const scrollTop = scrollContainer.value.scrollTop; // 此處不再需要直接使用 scrollTop
 
       // 滾動時，跑帶貼圖動畫啟用
       textureScrollSettings.value.enabled = true;
@@ -351,71 +382,73 @@ const animate = () => {
         const cameraDuration = cameraAnimationAction.value.getClip().duration;
         cameraAnimationAction.value.enabled = true; // 始終啟用
         cameraAnimationAction.value.time = scrollProgress.value * cameraDuration;
-        console.log(`Camera Animation: Enabled=true, Time=${cameraAnimationAction.value.time.toFixed(2)}`);
+        // console.log(`Camera Animation: Enabled=true, Time=${cameraAnimationAction.value.time.toFixed(2)}`);
       }
 
-      // Armature 動畫：根據滾動進度在 Section 0 和 1 播放，Section 2 後隱藏
+      // Armature 動畫：在 Section 0 和 1 播放，Section 2 後隱藏
       if (armatureAnimationAction.value) {
-        const armatureDuration = armatureAnimationAction.value.getClip().duration;
-        const armaturePart = model.value ? model.value.getObjectByName('Armature') : null;
-
-        // 設定動畫循環的結束點為總時長的 80%
-        const loopEnd = armatureDuration * 0.8;
-
         if (currentSection.value < 2) { // 當 currentSection 是 0 或 1 時播放
           armatureAnimationAction.value.enabled = true;
-          armatureAnimationAction.value.paused = false;
+          const armatureDuration = armatureAnimationAction.value.getClip().duration;
+          const loopEnd = armatureDuration * 0.79; // **循環到 79% 處**
 
-          // 計算基於滾動進度的動畫時間，並確保在 0 到 loopEnd 之間循環
-          // 將 scrollProgress 映射到 0 到 1 的範圍，然後乘以 loopEnd
-          // 這裡我們讓它在整個滾動進度中都保持循環，直到超過某個點
-          // 為了實現 "只播放動畫的80%並循環播放"，我們需要將滾動進度映射到這個 80% 的範圍內
-          // 例如，如果 scrollProgress 從 0 到 1，我們希望動畫時間在 0 到 loopEnd 之間循環
-          // 最簡單的方法是讓它自由播放，但當超過 loopEnd 時重置
           armatureAnimationAction.value.time += delta; // 讓動畫時間遞增
-          if (armatureAnimationAction.value.time >= loopEnd) {
-            armatureAnimationAction.value.time = 0; // 重置到動畫開頭
-          }
 
+          // 如果時間超過了循環結束點，就重置到 0
+          if (armatureAnimationAction.value.time >= loopEnd) {
+            armatureAnimationAction.value.time = 0;
+          }
+          armatureAnimationAction.value.paused = false; // 確保沒有暫停
           if (armaturePart) armaturePart.visible = true; // 確保可見
 
         } else { // 當 currentSection >= 2 時，隱藏 Armature 模型
           armatureAnimationAction.value.enabled = false;
-          // 停留在 80% 的最後一幀，而不是完全的最後一幀
-          armatureAnimationAction.value.time = loopEnd;
-          armatureAnimationAction.value.paused = true;
+          armatureAnimationAction.value.paused = true; // 暫停動畫
           if (armaturePart) armaturePart.visible = false; // 設定為不可見
         }
       }
 
-      // motor 和 motor_cover 動畫：在 currentSection === 1 時播放
-      if (motorAnimationAction.value && motorCoverAnimationAction.value) {
+      // 馬達和馬達蓋動畫以及定向光的控制
+      if (motorAnimationAction.value && motorCoverAnimationAction.value && directionalLightMotor.value) {
         if (currentSection.value === 1) {
           const motorDuration = motorAnimationAction.value.getClip().duration;
           const motorCoverDuration = motorCoverAnimationAction.value.getClip().duration;
-          const progressWithinCurrentSection = (scrollTop - clientHeight) / clientHeight; // 針對 Section 1 計算進度
+          const progressWithinCurrentSection = (scrollContainer.value.scrollTop - clientHeight) / clientHeight; // 針對 Section 1 計算進度
 
           motorAnimationAction.value.enabled = true;
           motorAnimationAction.value.time = progressWithinCurrentSection * motorDuration;
 
           motorCoverAnimationAction.value.enabled = true;
           motorCoverAnimationAction.value.time = progressWithinCurrentSection * motorCoverDuration;
+
+          directionalLightMotor.value.visible = true; // 在 Section 1 顯示馬達光
         } else {
           motorAnimationAction.value.enabled = false;
           motorCoverAnimationAction.value.enabled = false;
-          if (currentSection.value > 1 && motorAnimationAction.value.getClip()) {
-              motorAnimationAction.value.time = motorAnimationAction.value.getClip().duration;
-              motorCoverAnimationAction.value.time = motorCoverAnimationAction.value.getClip().duration;
-          } else {
-              motorAnimationAction.value.time = 0;
-              motorCoverAnimationAction.value.time = 0;
+          directionalLightMotor.value.visible = false; // 在其他區塊隱藏馬達光
+          // 當離開 Section 1 時，將馬達動畫設置為結束或開始，避免閃爍
+          if (motorAnimationAction.value.getClip()) {
+              motorAnimationAction.value.time = (currentSection.value > 1) ? motorAnimationAction.value.getClip().duration : 0;
+              motorCoverAnimationAction.value.time = (currentSection.value > 1) ? motorCoverAnimationAction.value.getClip().duration : 0;
           }
         }
+      } else if (directionalLightMotor.value) {
+        directionalLightMotor.value.visible = false; // 如果動畫或光線物件未加載，也隱藏光線
       }
 
-      mixer.value.update(0); // 手動更新 Three.js 原生動畫，不遞增時間
+      // 在滾動時，手動更新 mixer，因為大部分動畫時間是手動設定的
+      mixer.value.update(0);
     }
   }
+
+  // const motorMesh = model.value ? model.value.getObjectByName('Cylinder') : null;
+  //   if (motorMesh) {
+  //       const worldPosition = new THREE.Vector3();
+  //       motorMesh.getWorldPosition(worldPosition);
+
+        // 每幀打印一次可能會造成控制台訊息過多，你可以調整打印頻率或僅在特定情況下打印
+        // console.log(`馬達世界座標: X=${worldPosition.x.toFixed(2)}, Y=${worldPosition.y.toFixed(2)}, Z=${worldPosition.z.toFixed(2)}`);
+    // }
 
   if (renderer.value && scene.value && camera.value) {
     renderer.value.render(scene.value, camera.value)
@@ -435,8 +468,10 @@ const handleScroll = () => {
   const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
   scrollProgress.value = progress;
 
+  // 判斷當前在哪個 full-screen section
   currentSection.value = Math.floor(scrollTop / clientHeight);
 
+  // 判斷是否在頁面頂部 (前 50px 範圍內)
   isAtTop.value = scrollTop < 50;
 }
 
@@ -453,7 +488,7 @@ const onWindowResize = () => {
     window.innerHeight
   );
 
-  handleScroll();
+  handleScroll(); // 視窗大小改變後重新計算滾動進度
 }
 
 // --- Vue 生命周期鉤子 ---
@@ -464,7 +499,7 @@ onMounted(() => {
 
     scrollContainer.value.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', onWindowResize)
-    handleScroll()
+    handleScroll() // 初始載入時調用一次，設定初始狀態
   } else {
     console.error("Three.js 或 Scroll 容器 DOM 引用為 null onMounted. 請檢查 template 中的 ref 綁定。");
   }
@@ -476,6 +511,7 @@ onBeforeUnmount(() => {
   }
   window.removeEventListener('resize', onWindowResize)
 
+  // 清理 Three.js 資源以防止內存洩漏
   if (renderer.value) {
     renderer.value.dispose()
     if (scene.value) {
@@ -505,6 +541,17 @@ onBeforeUnmount(() => {
       mixer.value.uncacheRoot(mixer.value.getRoot());
   }
 
+  // 移除馬達的定向光及其目標
+  if (directionalLightMotor.value) {
+    scene.value.remove(directionalLightMotor.value);
+    directionalLightMotor.value = null;
+  }
+  if (directionalLightMotorTarget.value) {
+    scene.value.remove(directionalLightMotorTarget.value);
+    directionalLightMotorTarget.value = null;
+  }
+
+  // 清理所有引用
   mixer.value = null;
   model.value = null;
   scene.value = null;
