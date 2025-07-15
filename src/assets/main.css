@@ -1,3 +1,65 @@
-
 @import 'tailwindcss';
 
+@theme {
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --glass-radius: 1rem;
+
+  --glass-clear-bg: rgba(255, 255, 255, 0); /* 將透明度適度提高，從 0.03 提高到 0.1 */
+                                              /* 這樣它才「看得到」模糊，而不是完全透明 */
+  --glass-clear-border: rgba(255, 255, 255, 0.4); /* 邊框稍微加強，讓輪廓更明顯 */
+  --glass-clear-glow: 0 0 10px rgba(255, 255, 255, 0.3); /* 光暈效果可以更明顯一點 */
+  --glass-clear-hover-bg: rgba(255, 255, 255, 0.2); /* hover 時的透明度 */
+  --glass-clear-radius: 0.75rem;
+  --glass-clear-blur: blur(1px); /* **大幅降低模糊值**，讓它更清透，甚至可以嘗試 blur(2px) */
+  --glass-clear-shadow-inset: inset 0 0 0.7px rgba(255, 255, 255, 0.5),
+                              inset 0 0 0.5px rgba(255, 255, 255, 0.2);
+}
+/* 建立 utility class */
+@layer utilities {
+  .liquid-glass {
+    background-color: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--glass-radius);
+  }
+
+  .glass-clear {
+    @apply relative inline-flex items-center justify-center font-semibold transition-all duration-300 ease-in-out rounded-full;
+    @apply text-2xl font-bold text-black;
+
+    background-color: rgba(255, 255, 255, 0); /* 清澈玻璃 */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      inset 0 0 1px rgba(255, 255, 255, 0.4),
+      0 0 10px rgba(255, 255, 255, 0.1);
+
+    padding: 0.75rem 1.5rem; /* 即 Tailwind 的 px-6 py-3 */
+    font-size: 1.125rem; /* text-lg */
+  }
+
+  .glass-clear:hover {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 0 1px rgba(255, 255, 255, 0.6),
+      0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  /* 玻璃厚度感 - 透過 ::after 產生內邊緣光暈效果 */
+  .glass-clear::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+  }
+}

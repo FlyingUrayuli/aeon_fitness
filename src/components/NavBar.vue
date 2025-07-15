@@ -1,25 +1,23 @@
 <template>
-  <nav class="fixed top-0 w-full bg-transparent z-50 py-4 px-6 flex justify-between items-center">
-
-    <!-- <div class="text-xl font-bold">LOGO</div> -->
+  <nav class="fixed liquid-glass top-0 w-full z-50 py-4 px-6 flex justify-between items-center">
     <RouterLink to="/">
       <img src="/logo.svg" alt="Logo" />
     </RouterLink>
     <div class="hidden md:flex gap-6" :class="{ 'opacity-0': scrolled }">
-      <button class="text-gray-700 hover:text-black">
+      <button class="glass-clear glass-clear:hover px-6 py-2">
         <RouterLink to="/products">產品</RouterLink> <!-- 產品列表 -->
       </button>
-      <button class="text-gray-700 hover:text-black">
+      <button class="glass-clear glass-clear:hover px-6 py-2">
         <RouterLink to="/cart">購物車</RouterLink>
       </button>
 
-      <button class="text-gray-700 hover:text-black">
+      <button class="glass-clear glass-clear:hover px-6 py-2">
         <RouterLink to="/test">3D模型展示區</RouterLink> <!-- 3D模型展示區 -->
       </button>
 
     </div>
     <div>
-      <button class="text-gray-700 hover:text-black">
+      <button class="glass-clear glass-clear:hover px-6 py-2">
         <RouterLink to="/about">聯絡我們</RouterLink>
       </button>
     </div>
