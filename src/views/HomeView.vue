@@ -28,6 +28,7 @@ gsap.registerPlugin(ScrollTrigger);
 const heroSectionComponentRef = ref(null); // 引用 HeroSection 組件實例
 let mainHeroPinTrigger = null;
 
+
 onMounted(() => {
   const setupScrollTrigger = () => {
     // 檢查 heroSectionComponentRef 和其內部暴露的 heroSectionEl 是否已存在

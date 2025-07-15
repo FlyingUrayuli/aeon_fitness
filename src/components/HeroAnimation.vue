@@ -22,7 +22,7 @@
             'opacity-0': currentSection !== (index + 1)
           }"
           :style="{ transition: 'opacity 0.7s ease-out' }"
-          :scroller-element="scrollContainer"
+          :scrollerElement="scrollContainer"
         />
       </div>
     </div>

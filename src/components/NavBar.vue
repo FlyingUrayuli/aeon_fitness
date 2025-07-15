@@ -1,9 +1,10 @@
+<!-- NavBar.vue -->
 <template>
   <nav class="fixed liquid-glass top-0 w-full z-50 py-4 px-6 flex justify-between items-center">
     <RouterLink to="/">
       <img src="/logo.svg" alt="Logo" />
     </RouterLink>
-    <div class="hidden md:flex gap-6" :class="{ 'opacity-0': scrolled }">
+    <div class="hidden md:flex gap-6">
       <button class="glass-clear glass-clear:hover px-6 py-2">
         <RouterLink to="/products">產品</RouterLink> <!-- 產品列表 -->
       </button>

@@ -1,3 +1,4 @@
+<!-- loadingAnimation.vue -->
 <template>
   <div class="loading-screen">
     <div class="logo-container">
