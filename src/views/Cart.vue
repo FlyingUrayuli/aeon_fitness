@@ -2,7 +2,7 @@
 <template>
   <div class="min-h-screen bg-gray-100 text-gray-900">
     <!-- Fixed Progress Bar -->
-    <div  v-if="!orderSummary" class="fixed top-16 left-0 right-0 z-50 bg-white shadow-lg">
+    <div  v-if="!orderSummary" class="fixed top-20 left-0 right-0 z-50 bg-white shadow-lg">
       <div class="container mx-auto px-4 py-4">
         <div class="flex items-center justify-between mb-4">
           <h1 class="text-lg font-bold font-stzongsong">即將完成訂單...</h1>
@@ -34,16 +34,16 @@
     <!-- Main Content -->
     <div :class="{'pt-50': !orderSummary, 'py-8': orderSummary}" class="pb-32 container mx-auto px-4">
       <!-- FinishCart -->
-      <div v-if="orderSummary" class="pt-14 max-w-4xl mx-auto space-y-6">
+      <div v-if="orderSummary" class="pt-20 max-w-4xl mx-auto space-y-6">
         <div class="text-center mb-8">
           <div class="flex justify-center mb-4">
-            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
-              <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-20 h-20 bg-transparent border-[5px] border-green-500 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
             </div>
           </div>
-          <h1 class="text-4xl font-bold font-stzongsong text-green-600 mb-2">恭喜完成訂單！🎉</h1>
+          <h1 class="text-4xl font-bold font-stzongsong text-blue-600 mb-2">恭喜完成訂單！</h1>
           <p class="text-gray-600 font-stfangsong">您的訂單已成功送出，我們將盡快為您處理。</p>
         </div>
 
@@ -98,7 +98,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold font-stzongsong mb-6 text-purple-600">付款資訊</h2>
+          <h2 class="text-2xl font-bold font-stzongsong mb-6 text-blue-600">付款資訊</h2>
 
           <div class="bg-gray-50 p-4 rounded-lg">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -137,7 +137,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-lg p-6">
-          <h2 class="text-2xl font-bold font-stzongsong mb-6 text-green-600">訂單商品</h2>
+          <h2 class="text-2xl font-bold font-stzongsong mb-6 text-blue-600">訂單商品</h2>
 
           <div v-for="(item, index) in orderSummary.items" :key="index" class="border-b pb-4 mb-4 last:border-b-0 last:mb-0">
             <div class="flex items-center gap-4">
@@ -147,7 +147,7 @@
                 <p class="text-gray-600 font-stfangsong">{{ item.slogan }}</p>
                 <p class="text-sm text-gray-500 font-stfangsong">數量: {{ item.quantity }}</p>
               </div>
-              <span class="font-bold text-lg text-blue-600">NT$ {{ (item.price * item.quantity).toLocaleString() }}</span>
+              <span class="text-lg ">NT$ {{ (item.price * item.quantity).toLocaleString() }}</span>
             </div>
           </div>
 
@@ -449,7 +449,7 @@
             @click="nextStep"
             class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300"
           >
-            {{ currentStep === 3 ? '完成訂單' : 'Next' }}
+            {{ currentStep === 3 ? '完成訂單' : '下一步' }}
           </button>
         </div>
       </div>

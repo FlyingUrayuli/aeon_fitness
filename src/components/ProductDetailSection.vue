@@ -15,7 +15,7 @@
     <!-- 圖片展示區 -->
     <div v-else-if="type === 'images'" class="max-w-6xl mx-auto">
       <div class="flex items-center mb-6">
-        <svg class="w-10 h-10 text-yellow-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-10 h-10 text-cyan-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
         <h2 class="text-3xl font-bold font-stzongsong">產品展示</h2>
@@ -38,7 +38,7 @@
     <!-- 避震技術 -->
     <div v-else-if="type === 'shock'" class="max-w-4xl mx-auto">
       <div class="flex items-center mb-6">
-        <svg class="w-10 h-10 text-green-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-10 h-10 text-cyan-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         <h2 class="text-3xl font-bold font-stzongsong">{{ data.shockAbsorption.title }}</h2>
@@ -63,7 +63,7 @@
     <!-- 控制面板特色 -->
     <div v-else-if="type === 'control'" class="max-w-4xl mx-auto">
       <div class="flex items-center mb-6">
-        <svg class="w-10 h-10 text-purple-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-10 h-10 text-cyan-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
         <h2 class="text-3xl font-bold font-stzongsong">{{ data.controlPanel.title }}</h2>
@@ -77,7 +77,7 @@
           :key="index"
           class="flex items-center bg-gray-800 p-4 rounded-lg transition-colors duration-300"
         >
-          <svg class="w-6 h-6 text-purple-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
           </svg>
           <span class="font-stfangsong">{{ feature }}</span>
@@ -88,7 +88,7 @@
     <!-- 動力與坡度表現 -->
     <div v-else-if="type === 'power'" class="max-w-4xl mx-auto">
       <div class="flex items-center mb-6">
-        <svg class="w-10 h-10 text-red-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-10 h-10 text-cyan-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
         <h2 class="text-3xl font-bold font-stzongsong">{{ data.powerAndIncline.title }}</h2>
@@ -102,7 +102,7 @@
           :key="index"
           class="flex items-center bg-gray-800 p-4 rounded-lg transition-colors duration-300"
         >
-          <svg class="w-6 h-6 text-red-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-green-400 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
           <span class="font-stfangsong">{{ feature }}</span>
@@ -113,7 +113,7 @@
     <!-- CTA收尾區 -->
     <div v-else-if="type === 'cta'" class="text-center">
       <div class="flex justify-center items-center mb-6">
-        <svg class="w-12 h-12 text-blue-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-12 h-12 text-cyan-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
         </svg>
         <h2 class="text-3xl font-bold font-stzongsong">聯繫我們</h2>
@@ -122,7 +122,7 @@
         想了解更多產品資訊或獲得專業建議？
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button class="bg-blue-300 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 flex items-center justify-center">
+        <button class="bg-blue-600 hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 flex items-center justify-center">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
           </svg>
