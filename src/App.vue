@@ -1,7 +1,7 @@
 <!-- app.vue -->
 <script setup>
 import { RouterView, useRouter } from 'vue-router'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, provide } from 'vue'
 
 import NavBar from './components/NavBar.vue'
 import FooterSection from './components/FooterSection.vue'
@@ -10,34 +10,42 @@ import LoadingAnimation from './components/LoadingAnimation.vue'
 const isLoading = ref(true)
 const router = useRouter()
 
+// ✅ 提供給下層使用
+const setLoading = (value = true) => {
+  isLoading.value = value
+  if (!value) {
+    document.body.classList.add('loaded')
+  } else {
+    document.body.classList.remove('loaded')
+  }
+}
+provide('loadingControl', {
+  isLoading,
+  setLoading
+})
+
 // 初次載入：背景圖載入 + 至少顯示 1.5 秒
 onMounted(() => {
   const loadImagePromise = new Promise(resolve => {
     const img = new Image()
-    img.src = '@/assets/video_AZ50_ver11.glb?url' // 這是假設你的背景是圖片路徑，或可替換為真圖
+    img.src = '@/assets/video_AZ50_ver11.glb?url'
     img.onload = resolve
     img.onerror = resolve
   })
-
   const minDisplayTime = new Promise(resolve => setTimeout(resolve, 1500))
 
   Promise.all([loadImagePromise, minDisplayTime]).then(() => {
-    isLoading.value = false
-    document.body.classList.add('loaded')
+    setLoading(false)
   })
 })
 
-// 每次路由變化都觸發 loading
+// 路由跳轉也控制 loading 顯示
 router.beforeEach((to, from, next) => {
-  isLoading.value = true
+  setLoading(true)
   next()
 })
-
 router.afterEach(() => {
-  setTimeout(() => {
-    isLoading.value = false
-    document.body.classList.add('loaded')
-  }, 1000) // 讓動畫至少顯示 1 秒
+  setTimeout(() => setLoading(false), 1000)
 })
 
 onUnmounted(() => {
@@ -47,9 +55,7 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <!-- 條件性地顯示載入動畫 -->
     <LoadingAnimation v-if="isLoading" />
-    <!-- 當 isLoading 為 false 時，顯示您的主要應用內容 -->
     <template v-if="!isLoading">
       <div class="flex flex-col min-h-screen">
         <NavBar />
@@ -59,7 +65,7 @@ onUnmounted(() => {
         <FooterSection />
       </div>
     </template>
-</div>
+  </div>
 </template>
 
 <style>

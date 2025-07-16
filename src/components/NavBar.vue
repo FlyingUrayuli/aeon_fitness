@@ -2,7 +2,7 @@
 <template>
   <nav class="fixed liquid-glass top-0 w-full z-50 py-4 px-6 flex justify-between items-center">
     <RouterLink to="/">
-      <img src="/logo.svg" alt="Logo" />
+      <img class="w-12 h-12" src="/logo-2.svg" alt="logo">
     </RouterLink>
     <div class="hidden md:flex gap-6">
       <button class="glass-clear glass-clear:hover px-6 py-2">

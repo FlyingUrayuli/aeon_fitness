@@ -29,7 +29,8 @@ const props = defineProps({
   id: String,
   title: String,
   description: String,
-  scrollerElement: Object, // <--- 新增：接收滾動器元素
+  index: Number,
+  scrollerElement: Object,
 })
 
 const textWrapper = ref(null)
@@ -39,17 +40,15 @@ onMounted(async () => {
   await nextTick()
 
   const triggerEl = document.getElementById(props.id)
-  // 確保 triggerEl 和 textWrapper.value 都存在
-  // 並且 scrollerElement 也存在，才創建 ScrollTrigger
-  if (!triggerEl || !textWrapper.value || !props.scrollerElement) {
-    console.warn(`FeatureSection ${props.id}: Missing trigger element, text wrapper, or scroller element. ScrollTrigger not created.`);
-    return;
-  }
+  if (!triggerEl || !textWrapper.value || !props.scrollerElement) return
+
+  // 不同 section 使用不同 start
+  const startValue = props.index === 0 ? 'top top' : 'top 90%'
 
   trigger = ScrollTrigger.create({
     trigger: triggerEl,
-    scroller: props.scrollerElement, // <--- 關鍵：指定監聽的滾動器
-    start: 'top 70%',
+    scroller: props.scrollerElement,
+    start: startValue,
     end: 'bottom center',
     toggleActions: 'play reverse play reverse',
     onEnter: () => {
@@ -68,14 +67,36 @@ onMounted(async () => {
         ease: 'power2.in',
       })
     },
+    // 額外保險（快速滾動補觸發）
+    onUpdate: (self) => {
+      if (self.isActive && parseFloat(getComputedStyle(textWrapper.value).opacity) < 1) {
+        gsap.to(textWrapper.value, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power1.out',
+        })
+      }
+    }
   })
+
+  // 一開始判斷是否需要手動顯示（特別針對第一個 section）
+  const bounds = triggerEl.getBoundingClientRect()
+  const scrollerBounds = props.scrollerElement.getBoundingClientRect()
+  const triggerTop = bounds.top - scrollerBounds.top
+  const scrollerHeight = scrollerBounds.height
+
+  const shouldShow =
+    props.index === 0
+      ? triggerTop <= 0
+      : triggerTop <= scrollerHeight * 0.9
+
+  if (shouldShow) {
+    gsap.set(textWrapper.value, { opacity: 1, y: 0 })
+  }
 })
 
 onUnmounted(() => {
-  trigger?.kill() // 組件卸載時，確保殺死 ScrollTrigger 實例
+  trigger?.kill()
 })
 </script>
-
-<style scoped>
-/* 根據需要添加樣式 */
-</style>

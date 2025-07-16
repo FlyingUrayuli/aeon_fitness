@@ -1,33 +1,26 @@
 <!-- heroanimation.vue -->
 <template>
   <div ref="heroAnimationContainer" class="fixed inset-0 w-screen h-screen overflow-hidden">
-
     <div class="absolute inset-0 bg-transparent z-0">
       <div ref="threeContainer" class="w-full h-full"></div>
     </div>
 
     <div ref="scrollContainer" class="absolute inset-0 overflow-y-scroll z-10 pointer-events-auto">
-      <div :style="{ height: `${(1 + features.length) * 100}vh` }">
-        <div class="h-screen w-full bg-transparent"></div>
-
+      <div :style="{ height: `${features.length * 100}vh` }">
         <FeatureSection
           v-for="(feature, index) in features"
           :key="index"
+          :index="index"
           :id="'feature-section-' + index"
           :title="feature.title"
           :description="feature.description"
-          class="min-h-screen flex items-center justify-center bg-transparent"
-          :class="{
-            'opacity-100': currentSection === (index + 1), // FeatureSection 的 index 從 0 開始，但 currentSection 0 是初始空白頁
-            'opacity-0': currentSection !== (index + 1)
-          }"
-          :style="{ transition: 'opacity 0.7s ease-out' }"
           :scrollerElement="scrollContainer"
         />
       </div>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, shallowRef } from 'vue'
@@ -152,10 +145,10 @@ const loadModel = () => {
         camera.value.lookAt(0, 0.5, 0);
       }
       if (camera.value) {
-          camera.value.aspect = window.innerWidth / window.innerHeight;
-          camera.value.updateProjectionMatrix();
+        camera.value.aspect = window.innerWidth / window.innerHeight;
+        camera.value.updateProjectionMatrix();
       } else {
-          console.error("Camera is still undefined after loadModel attempt!");
+        console.error("Camera is still undefined after loadModel attempt!");
       }
 
       model.value.scale.set(1, 1, 1)
@@ -202,7 +195,7 @@ const loadModel = () => {
 
         const beltClip = gltf.animations.find(anim => anim.name === 'belt');
         if (beltClip) {
-            console.warn('Found "belt" animation in GLB, but it will not be used or processed. Its native playback is intentionally ignored.');
+          console.warn('Found "belt" animation in GLB, but it will not be used or processed. Its native playback is intentionally ignored.');
         }
 
         const motorClip = gltf.animations.find(anim => anim.name === 'motor');
@@ -245,7 +238,7 @@ const loadModel = () => {
         }
 
       } else {
-          console.log('No animations found in the model.');
+        console.log('No animations found in the model.');
       }
 
       animate();
@@ -270,17 +263,17 @@ const updateTextureScroll = () => {
   const direction = textureScrollSettings.value.direction
   const speed = textureScrollSettings.value.speed * (textureScrollSettings.value.reverse ? -1 : 1)
 
-  materialOffset.value [direction] += speed
+  materialOffset.value[direction] += speed
 
-  materialOffset.value [direction] %= 1;
-  if (materialOffset.value [direction] < 0) {
-    materialOffset.value [direction] += 1;
+  materialOffset.value[direction] %= 1;
+  if (materialOffset.value[direction] < 0) {
+    materialOffset.value[direction] += 1;
   }
 
   if (direction === 'u') {
-    beltTexture.value.map.offset.x = materialOffset.value [direction]
+    beltTexture.value.map.offset.x = materialOffset.value[direction]
   } else {
-    beltTexture.value.map.offset.y = materialOffset.value [direction]
+    beltTexture.value.map.offset.y = materialOffset.value[direction]
   }
 
   beltTexture.value.map.needsUpdate = true
@@ -316,16 +309,16 @@ const animate = () => {
       mixer.value.update(delta);
 
       if (cameraAnimationAction.value) {
-          cameraAnimationAction.value.enabled = false;
-          cameraAnimationAction.value.time = 0;
+        cameraAnimationAction.value.enabled = false;
+        cameraAnimationAction.value.time = 0;
       }
       if (motorAnimationAction.value) {
-          motorAnimationAction.value.enabled = false;
-          motorAnimationAction.value.time = 0;
+        motorAnimationAction.value.enabled = false;
+        motorAnimationAction.value.time = 0;
       }
       if (motorCoverAnimationAction.value) {
-          motorCoverAnimationAction.value.enabled = false;
-          motorCoverAnimationAction.value.time = 0;
+        motorCoverAnimationAction.value.enabled = false;
+        motorCoverAnimationAction.value.time = 0;
       }
       // 檢查 sphereLightMotor.value 是否存在
       if (sphereLightMotor.value) {
@@ -382,8 +375,8 @@ const animate = () => {
           motorCoverAnimationAction.value.enabled = false;
           sphereLightMotor.value.visible = false;
           if (motorAnimationAction.value.getClip()) {
-              motorAnimationAction.value.time = (currentSection.value > 1) ? motorAnimationAction.value.getClip().duration : 0;
-              motorCoverAnimationAction.value.time = (currentSection.value > 1) ? motorCoverAnimationAction.value.getClip().duration : 0;
+            motorAnimationAction.value.time = (currentSection.value > 1) ? motorAnimationAction.value.getClip().duration : 0;
+            motorCoverAnimationAction.value.time = (currentSection.value > 1) ? motorCoverAnimationAction.value.getClip().duration : 0;
           }
         }
       } else if (sphereLightMotor.value) { // 這裡也要確保 sphereLightMotor.value 存在才操作
@@ -461,8 +454,8 @@ onBeforeUnmount(() => {
           if (object.material) {
             const materials = Array.isArray(object.material) ? object.material : [object.material];
             materials.forEach(material => {
-                if (material.map) material.map.dispose();
-                material.dispose();
+              if (material.map) material.map.dispose();
+              material.dispose();
             });
           }
         }
@@ -475,8 +468,8 @@ onBeforeUnmount(() => {
   armatureAnimationAction.value?.stop();
 
   if (mixer.value) {
-      mixer.value.stopAllAction();
-      mixer.value.uncacheRoot(mixer.value.getRoot());
+    mixer.value.stopAllAction();
+    mixer.value.uncacheRoot(mixer.value.getRoot());
   }
 
   // **清理 sphereLightMotor 資源**
@@ -496,7 +489,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
