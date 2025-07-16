@@ -2,7 +2,7 @@ export const slides = [
   '/AEON-跑步機/AZ40/AZ40-01.png',
   '/AEON-跑步機/AZ50/AZ50-01.png',
   '/AEON-跑步機/AZ60/AZ60-01.png',
-  '/AEON-跑步機/GT500/GT500-02.png',
+  // '/AEON-跑步機/GT500/GT500-02.png',
   '/AEON-跑步機/GT820/GT820-01.png',
   '/AEON-跑步機/GT900/GT900-01.png',
 ]

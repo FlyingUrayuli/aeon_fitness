@@ -6,39 +6,62 @@
     </RouterLink>
     <div class="hidden md:flex gap-6">
       <button class="glass-clear glass-clear:hover px-6 py-2">
-        <RouterLink to="/products">產品</RouterLink> <!-- 產品列表 -->
+        <RouterLink to="/products">產品</RouterLink>
       </button>
       <button class="glass-clear glass-clear:hover px-6 py-2">
         <RouterLink to="/cart">購物車</RouterLink>
       </button>
-
-      <button class="glass-clear glass-clear:hover px-6 py-2">
-        <RouterLink to="/test">3D模型展示區</RouterLink> <!-- 3D模型展示區 -->
-      </button>
-
+      <!-- <button class="glass-clear glass-clear:hover px-6 py-2">
+        <RouterLink to="/test">3D模型展示區</RouterLink>
+      </button> -->
     </div>
+
     <div>
-      <button class="glass-clear glass-clear:hover px-6 py-2">
-        <RouterLink to="/about">聯絡我們</RouterLink>
+      <button @click="scrollToFooter" class="glass-clear glass-clear:hover px-6 py-2">
+        聯絡我們
       </button>
     </div>
   </nav>
 </template>
-
+<!--
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+// 邏輯變得非常簡單，不再需要 router 和 nextTick
 
-const scrolled = ref(false)
+const scrollToFooter = () => {
+  // 在當前頁面的文件中尋找我們約定好的 ID
+  const footerElement = document.getElementById('page-footer-cta');
 
-const handleScroll = () => {
-  scrolled.value = window.scrollY > 100
-}
+  if (footerElement) {
+    // 如果找到了，就平滑滾動到它那裡
+    footerElement.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    // 如果在當前頁面找不到，給出提示。
+    // 這有助於您在開發時發現哪個頁面忘記加上 <CTASection> 了。
+    console.warn('當前頁面找不到 ID 為 "page-footer-cta" 的區塊。');
+  }
+};
+</script> -->
+<script setup>
+// 1. 導入 gsap 和 ScrollToPlugin
+import { gsap } from 'gsap';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
+// 2. 註冊插件 (這一步非常重要，且只需在專案中執行一次)
+//    您可以將它放在 App.vue 或 main.js，但放在這裡也同樣有效。
+gsap.registerPlugin(ScrollToPlugin);
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+const scrollToFooter = () => {
+  const footerElement = document.getElementById('page-footer-cta');
+
+  if (footerElement) {
+    // 3. 使用 GSAP 進行滾動動畫
+    gsap.to(window, {
+      duration: 2, // 【控制速度】滾動時間為 2 秒，數字越大越慢
+      scrollTo: "#page-footer-cta", // 滾動到指定的 ID 元素
+      ease: 'power2.inOut' // 使用平滑的緩動效果，讓體驗更佳
+    });
+  } else {
+    console.warn('當前頁面找不到 ID 為 "page-footer-cta" 的區塊。');
+  }
+};
 </script>

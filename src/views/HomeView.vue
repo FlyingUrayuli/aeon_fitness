@@ -7,7 +7,7 @@
     <!-- <CustomerSection /> -->
 
     <!-- CTASection 將在 Hero Section 滾動完成後顯示 -->
-    <CTASection />
+    <CTASection id="page-footer-cta" />
   </div>
 </template>
 
