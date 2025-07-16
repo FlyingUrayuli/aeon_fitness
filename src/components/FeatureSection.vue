@@ -6,7 +6,8 @@
   >
     <div
       ref="textWrapper"
-      class="opacity-0 transform translate-y-10 transition-all duration-700 max-w-2xl"
+      class="opacity-0 transform translate-y-10 transition-all duration-700 max-w-2xl
+             bg-white/70 p-6 rounded-2xl shadow-xl"
     >
       <h2 class="text-4xl md:text-5xl font-bold text-black mb-4">
         {{ title }}
