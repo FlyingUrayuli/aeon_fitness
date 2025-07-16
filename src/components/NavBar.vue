@@ -2,7 +2,7 @@
 <template>
   <nav class="fixed liquid-glass top-0 w-full z-50 py-4 px-6 flex justify-between items-center">
     <RouterLink to="/">
-      <img class="w-12 h-12" src="/logo-2.svg" alt="logo">
+      <img class="w-12 h-12" src="/aeon_logo.png" alt="logo">
     </RouterLink>
     <div class="hidden md:flex gap-6">
       <button class="glass-clear glass-clear:hover px-6 py-2">
@@ -23,24 +23,7 @@
     </div>
   </nav>
 </template>
-<!--
-<script setup>
-// 邏輯變得非常簡單，不再需要 router 和 nextTick
 
-const scrollToFooter = () => {
-  // 在當前頁面的文件中尋找我們約定好的 ID
-  const footerElement = document.getElementById('page-footer-cta');
-
-  if (footerElement) {
-    // 如果找到了，就平滑滾動到它那裡
-    footerElement.scrollIntoView({ behavior: 'smooth' });
-  } else {
-    // 如果在當前頁面找不到，給出提示。
-    // 這有助於您在開發時發現哪個頁面忘記加上 <CTASection> 了。
-    console.warn('當前頁面找不到 ID 為 "page-footer-cta" 的區塊。');
-  }
-};
-</script> -->
 <script setup>
 // 1. 導入 gsap 和 ScrollToPlugin
 import { gsap } from 'gsap';

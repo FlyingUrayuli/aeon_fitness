@@ -5,7 +5,7 @@
       <div ref="threeContainer" class="w-full h-full"></div>
     </div>
 
-    <div ref="scrollContainer" class="absolute inset-0 overflow-y-scroll z-10 pointer-events-auto">
+    <div ref="scrollContainer" class="absolute inset-0 overflow-y-scroll scrollbar-none z-10 pointer-events-auto">
       <div :style="{ height: `${features.length * 100}vh` }">
         <FeatureSection
           v-for="(feature, index) in features"
@@ -18,6 +18,7 @@
         />
       </div>
     </div>
+
   </div>
 </template>
 
@@ -494,5 +495,15 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+}
+
+/* 隱藏滾動條但保留滾動功能 */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 </style>

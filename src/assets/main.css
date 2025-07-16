@@ -9,7 +9,7 @@
 
   --glass-clear-bg: rgba(255, 255, 255, 0); /* 將透明度適度提高，從 0.03 提高到 0.1 */
                                               /* 這樣它才「看得到」模糊，而不是完全透明 */
-  --glass-clear-border: rgba(255, 255, 255, 0.4); /* 邊框稍微加強，讓輪廓更明顯 */
+  /* --glass-clear-border: rgba(255, 255, 255, 0.4); 邊框稍微加強，讓輪廓更明顯 */
   --glass-clear-glow: 0 0 10px rgba(255, 255, 255, 0.3); /* 光暈效果可以更明顯一點 */
   --glass-clear-hover-bg: rgba(255, 255, 255, 0.2); /* hover 時的透明度 */
   --glass-clear-radius: 0.75rem;
@@ -29,37 +29,43 @@
   }
 
   .glass-clear {
-    @apply relative inline-flex items-center justify-center font-semibold transition-all duration-300 ease-in-out rounded-full;
-    @apply text-2xl font-bold text-black;
+  @apply relative inline-flex items-center justify-center font-semibold transition-all duration-300 ease-in-out rounded-full;
+  @apply text-2xl font-bold text-black;
 
-    background-color: rgba(255, 255, 255, 0); /* 清澈玻璃 */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow:
-      inset 0 0 1px rgba(255, 255, 255, 0.4),
-      0 0 10px rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0);
+  /* backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); */
+  box-shadow: none; /* ✅ 預設無陰影 */
+  border: 1px solid transparent;     /* ✅ 預設無邊框 */
 
-    padding: 0.75rem 1.5rem; /* 即 Tailwind 的 px-6 py-3 */
-    font-size: 1.125rem; /* text-lg */
-  }
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+.glass-clear::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: none; /* ✅ 預設無內框 */
+  box-shadow: none;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
 
   .glass-clear:hover {
-    transform: scale(1.05);
-    background-color: rgba(255, 255, 255, 0.12);
-    box-shadow:
-      inset 0 0 1px rgba(255, 255, 255, 0.6),
-      0 0 20px rgba(255, 255, 255, 0.3);
-  }
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.4); /* ✅ 外邊框浮現 */
+  border: 1px solid rgba(255, 255, 255, 0.4); /* ✅ 加入邊框 */
+}
 
-  /* 玻璃厚度感 - 透過 ::after 產生內邊緣光暈效果 */
-  .glass-clear::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
-    pointer-events: none;
-  }
+.glass-clear:hover::after {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
 }
