@@ -5,10 +5,10 @@
       <img class="w-12 h-12" src="/aeon_logo.png" alt="logo">
     </RouterLink>
     <div class="hidden md:flex gap-6">
-      <button class="glass-clear glass-clear:hover px-6 py-2">
+      <button class="glass-clear px-6 py-2">
         <RouterLink to="/products">產品</RouterLink>
       </button>
-      <button class="glass-clear glass-clear:hover px-6 py-2">
+      <button class="glass-clear px-6 py-2">
         <RouterLink to="/cart">購物車</RouterLink>
       </button>
       <!-- <button class="glass-clear glass-clear:hover px-6 py-2">
@@ -17,7 +17,7 @@
     </div>
 
     <div>
-      <button @click="scrollToFooter" class="glass-clear glass-clear:hover px-6 py-2">
+      <button @click="scrollToFooter" class="glass-clear px-6 py-2">
         聯絡我們
       </button>
     </div>

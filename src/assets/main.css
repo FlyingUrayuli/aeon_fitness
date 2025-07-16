@@ -7,16 +7,15 @@
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   --glass-radius: 1rem;
 
-  --glass-clear-bg: rgba(255, 255, 255, 0); /* 將透明度適度提高，從 0.03 提高到 0.1 */
-                                              /* 這樣它才「看得到」模糊，而不是完全透明 */
-  /* --glass-clear-border: rgba(255, 255, 255, 0.4); 邊框稍微加強，讓輪廓更明顯 */
-  --glass-clear-glow: 0 0 10px rgba(255, 255, 255, 0.3); /* 光暈效果可以更明顯一點 */
-  --glass-clear-hover-bg: rgba(255, 255, 255, 0.2); /* hover 時的透明度 */
+  --glass-clear-bg: rgba(255, 255, 255, 0);
+  --glass-clear-glow: 0 0 10px rgba(255, 255, 255, 0.3);
+  --glass-clear-hover-bg: rgba(255, 255, 255, 0.2);
   --glass-clear-radius: 0.75rem;
-  --glass-clear-blur: blur(1px); /* **大幅降低模糊值**，讓它更清透，甚至可以嘗試 blur(2px) */
+  --glass-clear-blur: blur(1px);
   --glass-clear-shadow-inset: inset 0 0 0.7px rgba(255, 255, 255, 0.5),
-                              inset 0 0 0.5px rgba(255, 255, 255, 0.2);
+    inset 0 0 0.5px rgba(255, 255, 255, 0.2);
 }
+
 /* 建立 utility class */
 @layer utilities {
   .liquid-glass {
@@ -26,46 +25,60 @@
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
     border-radius: var(--glass-radius);
+
+    /* 防止 hover 放大撐高問題，固定放大中心 */
+    transform-origin: center center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .card .liquid-glass:hover {
+    transform: scale(1.03);
+    box-shadow:
+      0 0 20px rgba(255, 255, 255, 0.3),
+      0 8px 32px rgba(31, 38, 135, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 
   .glass-clear {
-  @apply relative inline-flex items-center justify-center font-semibold transition-all duration-300 ease-in-out rounded-full;
-  @apply text-2xl font-bold text-black;
+    @apply relative inline-flex items-center justify-center font-semibold transition-all duration-300 ease-in-out rounded-full;
+    @apply text-2xl font-bold text-black;
 
-  background-color: rgba(255, 255, 255, 0);
-  /* backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); */
-  box-shadow: none; /* ✅ 預設無陰影 */
-  border: 1px solid transparent;     /* ✅ 預設無邊框 */
+    background-color: rgba(255, 255, 255, 0);
+    box-shadow: none;
+    border: 1px solid transparent;
 
-  padding: 0.75rem 1.5rem;
-  font-size: 1.125rem;
-  cursor: pointer;
-}
+    padding: 0.75rem 1.5rem;
+    font-size: 1.125rem;
+    cursor: pointer;
 
-.glass-clear::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: none; /* ✅ 預設無內框 */
-  box-shadow: none;
-  pointer-events: none;
-  transition: all 0.3s ease;
-}
+    /* 同樣防止撐大 */
+    transform-origin: center center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .glass-clear::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: none;
+    box-shadow: none;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
 
   .glass-clear:hover {
-  transform: scale(1.05);
-  background-color: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.4); /* ✅ 外邊框浮現 */
-  border: 1px solid rgba(255, 255, 255, 0.4); /* ✅ 加入邊框 */
-}
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 0 10px rgba(255, 255, 255, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
 
-.glass-clear:hover::after {
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
-}
-
+  .glass-clear:hover::after {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.4);
+  }
 }
